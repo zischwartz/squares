@@ -10,6 +10,7 @@ import settings
 urlpatterns = patterns('',
     (r'^$',  direct_to_template, {'template': 'index.html'}),
     (r'^home/$',  direct_to_template, {'template': 'index.html'}),
+    url(r'^data/', include('gather.urls')),
 
     # Examples:
     # url(r'^$', 'squares.views.home', name='home'),
