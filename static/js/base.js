@@ -85,11 +85,16 @@ var // DOM NodeList caches
 	}
 	
 	function checkIN(venueID) {
-		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + token[1] + '&broadcast=public&venueId=' + venueID , function(data) {
-			console.log('checkin',data);
-			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(data){
-				console.log('venue', data);
-				alert('Venue Data Loaded');	
+		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + token[1] + '&broadcast=public&venueId=' + venueID , function(Cdata) {
+			console.log('checkin', Cdata);
+			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(Vdata){
+				console.log('venue', Vdata);
+				// alert('Venue Data Loaded');	
+
+				// sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'venueData': Vdata.response.venue.name});
+				sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'checkinData': Cdata.response.checkin, 'venueData': Vdata.response.venue });
+				console.log('datasent!!!!!!!!!!!!!!');
+
 				}			
 			);
 			// window.location.reload();
@@ -115,7 +120,7 @@ var // DOM NodeList caches
 				userId = json.response.user.id;
 				userPhoto = json.response.user.photo; 
 				// man, we should just pass everything to our server.
-				// sendToServer({'action': 'new', type: 'user', 'userName': userName, 'userId':userId});
+				sendToServer({type: 'user', 'userName': userName, 'userId':userId});
 			}
 		});
 	}
@@ -147,8 +152,9 @@ var // DOM NodeList caches
 	function sendToServer(data){
 		$.ajax({
 			url:'/data/',
-			data: data,
+			data: $.toJSON(data),
 			type: 'POST',
+			dataType: 'json'
 		});
 	} //end sendToServer
 
