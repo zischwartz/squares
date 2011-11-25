@@ -14,14 +14,24 @@ def newData(request):
 			newUser, created= Square.objects.get_or_create(id=data['userId'], userName=data['userName'])
 		
 		if data['type']=='checkin':
-			# json_data = simplejson.loads(request.raw_post_data)
-			# return HttpResponse(data['venueData'])
-			userSquare= Square.objects.get(id= data['userId'])
-			# newCheckin = Checkin(square=userSquare)
-			newCheckin = Checkin(square=userSquare, venueData=data['venueData'], checkinData = data['checkinData'])
-			newCheckin.save()
+			cid = data['checkinData']['id']
 
-		return HttpResponse('<b>nice post:</b><br>')
+			if not len(Checkin.objects.filter(id=cid)): 
+				#it's a new checkin
+				userSquare= Square.objects.get(id= data['userId'])
+				newCheckin = Checkin(id= cid, square=userSquare, venueData=data['venueData'], checkinData = data['checkinData'])
+				newCheckin.save()
+			else:
+				return HttpResponse('you already checked in here')
+		
+		if data['type']=='activity':
+
+			checkin = Checkin.objects.get(id=data['id'])
+			checkin.points += int(data['points'])
+			checkin.save()
+			return HttpResponse('nice activity post yo')
+
+		return HttpResponse('nice post')
 
 	if request.method == 'GET':
 		return HttpResponse('nice get')

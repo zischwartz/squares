@@ -9,10 +9,11 @@ var // DOM NodeList caches
 	checkedIn = false,
 	userName = 'userName',
 	userId ='',
+	checkinId ='',
 	userPhoto='',
 	lastCheckInName = 'a location',
 	nearbyVenues = [],
-	checkInDuration = 1; // how long check-ins last, in minutes
+	checkInDuration = 120; // how long check-ins last, in minutes
 	
 
 
@@ -23,6 +24,9 @@ var // DOM NodeList caches
 	$("a.checkin").live("click", function(){
 		checkIN($(this).attr('title'));
 	});
+
+	$('a#makeHappy').live('click', function(){doActivity(5)});
+	$('a#makeSad').live('click', function(){doActivity(-5)});
 
 
 	function init() { // start everything up and check if you've validated squares with foursquare
@@ -47,7 +51,7 @@ var // DOM NodeList caches
 		navigator.geolocation.getCurrentPosition(function(loc){
 			var lat = loc.coords.latitude;
 			var lon = loc.coords.longitude;
-			var doStuff = "<p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p>";
+			var doStuff = "<p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p> <p><a id='makeHappy'> Make me happy</a><p> or <a id='makeSad'>Make me sad</a></p>";
 			if ( checkedIn == false) {
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
@@ -88,13 +92,15 @@ var // DOM NodeList caches
 		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + token[1] + '&broadcast=public&venueId=' + venueID , function(Cdata) {
 			console.log('checkin', Cdata);
 			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(Vdata){
-				console.log('venue', Vdata);
+				// console.log('venue', Vdata);
 				// alert('Venue Data Loaded');	
 
-				// sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'venueData': Vdata.response.venue.name});
 				sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'checkinData': Cdata.response.checkin, 'venueData': Vdata.response.venue });
-				console.log('datasent!!!!!!!!!!!!!!');
-
+				checkinId = Cdata.response.checkin.id;
+				checkedIn= true; //AHA!
+				// alert(checkinId)
+				//instead of reloading the window, lets just do getLocation
+				getLocation();
 				}			
 			);
 			// window.location.reload();
@@ -157,6 +163,11 @@ var // DOM NodeList caches
 			dataType: 'json'
 		});
 	} //end sendToServer
+
+
+	function doActivity(points){
+		sendToServer({'type':'activity', 'points':points, 'id':checkinId});	
+	}
 
 			
 $(document).ready(function() {
