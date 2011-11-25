@@ -144,6 +144,7 @@ var // DOM NodeList caches
 				lastCheckInName = json.response.checkins.items[0].venue.name;
 				lastCheckInTime = json.response.checkins.items[0].createdAt; // 
 				elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes	
+				checkinId = json.response.checkins.items[0].id;
 			}
 		});
 		if(elapsedTime < checkInDuration) {
