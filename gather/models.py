@@ -22,7 +22,16 @@ class Checkin(models.Model):
 
 	square = models.ForeignKey(Square, null=True, blank=True)
 
+	def __unicode__(self):
+		return self.square.userName +' at '+ self.checkinData['venue']['name']
 
+	def get_inputs(self):
+		inputs = []
+		inputs.append(self.venueData['stats']['checkinsCount'])
+		inputs.append(self.venueData['hereNow']['count'])
+		inputs.append(self.venueData['tips']['count'])
+		inputs.append(self.venueData['createdAt'])
+		return(inputs)
 
 
 from django.contrib import admin

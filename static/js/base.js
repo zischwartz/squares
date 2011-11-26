@@ -11,7 +11,7 @@ var // DOM NodeList caches
 	userId ='',
 	checkinId ='',
 	userPhoto='',
-	lastCheckInName = 'a location',
+	lastCheckInName = 'a TEST location',
 	nearbyVenues = [],
 	checkInDuration = 120; // how long check-ins last, in minutes
 	
@@ -22,6 +22,7 @@ var // DOM NodeList caches
 		$('#requested-venue').remove();
 	});
 	$("a.checkin").live("click", function(){
+		lastCheckInName = $(this).text();
 		checkIN($(this).attr('title'));
 	});
 
@@ -92,7 +93,7 @@ var // DOM NodeList caches
 		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + token[1] + '&broadcast=public&venueId=' + venueID , function(Cdata) {
 			console.log('checkin', Cdata);
 			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(Vdata){
-				// console.log('venue', Vdata);
+				console.log('CHECKING IN');
 				// alert('Venue Data Loaded');	
 
 				sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'checkinData': Cdata.response.checkin, 'venueData': Vdata.response.venue });
@@ -125,7 +126,6 @@ var // DOM NodeList caches
 				userName = json.response.user.firstName;
 				userId = json.response.user.id;
 				userPhoto = json.response.user.photo; 
-				// man, we should just pass everything to our server.
 				sendToServer({type: 'user', 'userName': userName, 'userId':userId});
 			}
 		});
@@ -141,12 +141,20 @@ var // DOM NodeList caches
 			async: false,
 			dataType: 'json',
 			success: function(json) {
-				lastCheckInName = json.response.checkins.items[0].venue.name;
-				lastCheckInTime = json.response.checkins.items[0].createdAt; // 
-				elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes	
-				checkinId = json.response.checkins.items[0].id;
+				try{
+					lastCheckInName = json.response.checkins.items[0].venue.name;
+					lastCheckInTime = json.response.checkins.items[0].createdAt; // 
+					elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes	
+					checkinId = json.response.checkins.items[0].id;
+					}
+				catch(err)
+				{
+					console.log(err);
+					elapsedTime = 10000;
+				}
 			}
 		});
+
 		if(elapsedTime < checkInDuration) {
 			checkedIn = true;
 		} else {
