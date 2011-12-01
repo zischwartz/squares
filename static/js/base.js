@@ -13,19 +13,27 @@ var // DOM NodeList caches
 	userPhoto='',
 	lastCheckInName = 'a TEST location',
 	nearbyVenues = [],
+	speed = 300,
 	checkInDuration = 120; // how long check-ins last, in minutes
 	
-
+	$.fn.pause = function(duration) { //calling pause on jquery events 
+		$(this).animate({ dummy: 1 }, duration);
+		return this;
+	};
 
 	$("p#more-options").live("click", function(){
 		getMoreVenueOptions();
-		$('#requested-venue').remove();
+		$('#requested-venue').fadeOut(speed);
 	});
 	$("a.checkin").live("click", function(){
 		lastCheckInName = $(this).text();
 		checkIN($(this).attr('title'));
 	});
-
+	$("#back-to-desired a").live("click", function(){
+		$('#requested-venue').pause(speed).fadeIn(speed);
+		$('.nearby-venues').fadeOut(speed);				
+		$('.nearby-intro').fadeOut(speed);				
+	});
 	$('a#makeHappy').live('click', function(){doActivity(5)});
 	$('a#makeSad').live('click', function(){doActivity(-5)});
 
@@ -33,6 +41,7 @@ var // DOM NodeList caches
 	function init() { // start everything up and check if you've validated squares with foursquare
 		if( token.indexOf('=') != -1 ) { // does the current address have an equals sign in it?
 			token = token.split('='); // grab the OAuth access token from the current address
+			addSquare();
 			getUserInfo();
 			areYouCheckedIn();
 			getLocation();
@@ -47,7 +56,11 @@ var // DOM NodeList caches
 		$('#content').append('<p id="introduction">' + introduction + '</p>'); // add an introductory paragraph
 		$('#content').append('<p  class="button"><a href="' + validateAddress + '">Ok, let\'s get my Square and do some stuff!</a></p>'); // add a link to log in to foursquare
 	}// end vailidate()
-
+	
+	function addSquare() {
+		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
+	}//end addSquare
+	
 	function getLocation() { // look at the GPS of the device and then call the API
 		navigator.geolocation.getCurrentPosition(function(loc){
 			var lat = loc.coords.latitude;
@@ -56,10 +69,10 @@ var // DOM NodeList caches
 			if ( checkedIn == false) {
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
-				$('#content').append(doStuff);
+				$(doStuff).hide().appendTo('#content').fadeIn(speed);
 			}
-			});
-		}// end getLocation()
+		});
+	}// end getLocation()
 
 	function findNearby(lat,lon) { //take the lat lon values and look for nearby venues in the foursquare API
 		var getVenues = "https://api.foursquare.com/v2/venues/explore?ll=" + lat + "," + lon + "&access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET;
@@ -75,10 +88,13 @@ var // DOM NodeList caches
 				desiredVenueID = desiredVenueNumber.venue.id;
 				desiredVenueName = desiredVenueNumber.venue.name; 
 				desiredVenueAddress = desiredVenueNumber.venue.location.address;
+				if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
 				$.each(json.response.groups[0].items, function() {
-					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2><h3>' + this.venue.location.address + '</h3></a>'); 
+					var venueAddress = this.venue.location.address;
+					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
 				});
-				$('#content').append('<div id="requested-venue"><p>Hey! Great to see you, ' + userName + ' - let\'s hang out! But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + ', at ' + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+				$('#content').append('<div id="requested-venue"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out! But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
 			}
 		});		
 				
@@ -101,6 +117,7 @@ var // DOM NodeList caches
 				checkedIn= true; //AHA!
 				// alert(checkinId)
 				//instead of reloading the window, lets just do getLocation
+				// cool - looks good!
 				getLocation();
 				}			
 			);
@@ -109,11 +126,11 @@ var // DOM NodeList caches
 	}
 
 	function getMoreVenueOptions() {
-		$('#content').append('<p>So where the heck are we?</p>'); //				
+		$('<div class="nearby-intro"><p id="back-to-desired" class="nav"><a>x</a></p><p>Ok, so where would you rather go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
 		$('<div/>', {
 			'class': 'nearby-venues',
 			html: nearbyVenues.join('')
-		}).appendTo('#content');
+		}).hide().appendTo('#content').pause(speed).fadeIn(speed);
 	}
 
 	function getUserInfo() {
@@ -141,7 +158,7 @@ var // DOM NodeList caches
 			async: false,
 			dataType: 'json',
 			success: function(json) {
-				try{
+				try{ // what's this? Fred would like to know more about 'try' and catch(err)
 					lastCheckInName = json.response.checkins.items[0].venue.name;
 					lastCheckInTime = json.response.checkins.items[0].createdAt; // 
 					elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes	
