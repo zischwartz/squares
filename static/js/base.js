@@ -14,7 +14,7 @@ var // DOM NodeList caches
 	lastCheckInName = 'a TEST location',
 	nearbyVenues = [],
 	speed = 300,
-	checkInDuration = 120; // how long check-ins last, in minutes
+	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
@@ -62,6 +62,10 @@ var // DOM NodeList caches
 	}//end addSquare
 	
 	function getLocation() { // look at the GPS of the device and then call the API
+		$('#requested-venue').fadeOut(speed); //clear the interface if we just checked in through the app
+		$('.nearby-venues').fadeOut(speed);
+		$('.nearby-intro').fadeOut(speed);
+		
 		navigator.geolocation.getCurrentPosition(function(loc){
 			var lat = loc.coords.latitude;
 			var lon = loc.coords.longitude;
@@ -69,7 +73,7 @@ var // DOM NodeList caches
 			if ( checkedIn == false) {
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
-				$(doStuff).hide().appendTo('#content').fadeIn(speed);
+				$(doStuff).hide().appendTo('#content').pause(speed).fadeIn(speed);
 			}
 		});
 	}// end getLocation()
@@ -117,7 +121,7 @@ var // DOM NodeList caches
 				checkedIn= true; //AHA!
 				// alert(checkinId)
 				//instead of reloading the window, lets just do getLocation
-				// cool - looks good!
+				// cool, I had to add some stuff to clear the interface into getLocation, but this is a good idea
 				getLocation();
 				}			
 			);
