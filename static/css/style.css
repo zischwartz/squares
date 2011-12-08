@@ -41,6 +41,12 @@ h3, p {
 	left:50%;
 	top:60px;
 	margin-left:-30px;
+	-webkit-transition-property: x, y;
+	-webkit-transition-duration: 0.1s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: x, y;
+	-moz-transition-duration: 0.1s;
+	-moz-transition-timing-function: linear;
 }
 #shadow {
 	height:20px;
@@ -72,19 +78,19 @@ a.nearby p {
 .nearby-venues {
 	margin-top:40px;
 }
-.button a:hover, a.nearby:hover {
+.button a:hover, a.nearby:hover, a.activity:hover {
 	background-color:#555555;
 }
 .nav a:hover {
 	background-color:#d1d1d1;
 }
-a.nearby, .button a, .nav a {
+a.nearby, .button a, .nav a, a.activity {
 	-webkit-transition:background-color .2s ease-in;
 	-moz-transition:background-color .2s ease-in;
 	-o-transition:background-color .2s ease-in;
 	transition:background-color .2s ease-in;
 }	
-a.nearby, .nav a {	
+a.nearby, .nav a, a.activity {	
 	background: #666666;
 	box-shadow: 2px 2px 0px #f1f1f1;
 	text-shadow: -1px -1px 0px #444444;
@@ -95,10 +101,10 @@ a.nearby, .nav a {
 	padding:14px 20px;
 	margin-right:14px;
 }
-a.nearby * {
+a.nearby *, a.activity * {
 	color:#e5e5e5;
 }
-a.nearby h2 {
+a.nearby h2, a.activity h2 {
 	color:#ffffff;
 }
 .nav a {
