@@ -16,9 +16,7 @@ var // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
-	deltaBeta,
-	deltaGamma,
-	checkInDuration = 120; // how long check-ins last, in minutes
+	checkInDuration = 400; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
@@ -26,19 +24,21 @@ var // DOM NodeList caches
 	};
 
 	$("p#more-options").live("click", function(){
+		$('#content').children().fadeOut(speed);
 		getMoreVenueOptions();
-		$('#requested-venue').fadeOut(speed);
 	});
 	$("a.checkin").live("click", function(){
 		lastCheckInName = $(this).text();
 		checkIN($(this).attr('title'));
 	});
-	$("#nearby-intro .back a").live("click", function(){
-		$('#requested-venue').pause(speed).fadeIn(speed);
-		$('.nearby-venues').fadeOut(speed);				
-		$('.nearby-intro').fadeOut(speed);				
+	$(".back a").live("click", function(){ // this is a general interface function for back buttons. the ID of the <a> element should correspond to the ID of the <div> you want to fade back in
+		$('#content').children().fadeOut(speed);
+		$('div#' + this.id).pause(speed).fadeIn(speed);
 	});
-	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
+	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
+		stopDancing();
+	});
+	$('a#makeHappy').live('click', function(){logActivityivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
 	$('a#dance').live('click', function(){dance()});
 	
@@ -59,7 +59,7 @@ var // DOM NodeList caches
 	function validate() { // this sticks a button with an API validation link in it
 		console.log("You don\'t seem to have an access token");
 		$('#content').append('<p id="introduction">' + introduction + '</p>'); // add an introductory paragraph
-		$('#content').append('<p  class="button"><a href="' + validateAddress + '">Ok, let\'s get my Square and do some stuff!</a></p>'); // add a link to log in to foursquare
+		$('#content').append('<p class="button"><a href="' + validateAddress + '">Ok, let\'s get my Square and do some stuff!</a></p>'); // add a link to log in to foursquare
 	}// end vailidate()
 	
 	function addSquare() {
@@ -67,14 +67,12 @@ var // DOM NodeList caches
 	}//end addSquare
 	
 	function getLocation() { // look at the GPS of the device and then call the API
-		$('#requested-venue').fadeOut(speed); //clear the interface if we just checked in through the app
-		$('.nearby-venues').fadeOut(speed);
-		$('.nearby-intro').fadeOut(speed);
-		
+		$('#content').children().fadeOut(speed); //clear the interface if we just checked in through the app
+		console.log('getLocation()');
 		navigator.geolocation.getCurrentPosition(function(loc){
 			var lat = loc.coords.latitude;
 			var lon = loc.coords.longitude;
-			var doStuff = "<div id='activities'><p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p></div>";
+			var doStuff = "<div id='act'><p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p></div>";
 			if ( checkedIn == false) {
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
@@ -104,7 +102,7 @@ var // DOM NodeList caches
 					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
 					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
 				});
-				$('#content').append('<div id="requested-venue"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out! But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+				$('#content').append('<div id="requested"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out! But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
 			}
 		});		
 				
@@ -136,7 +134,7 @@ var // DOM NodeList caches
 	}
 
 	function getMoreVenueOptions() {
-		$('<div class="nearby-intro"><p class="back nav"><a>x</a></p><p>Ok, so where would you rather go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
+		$('<div id="nearby"><p class="back nav"><a id="requested">Nevermind.</a></p><p>Ok, so where would you rather go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
 		$('<div/>', {
 			'class': 'nearby-venues',
 			html: nearbyVenues.join('')
@@ -191,38 +189,51 @@ var // DOM NodeList caches
 	
 	function initActivities() {
 		var activities = "<a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
-		$(activities).appendTo("#activities").pause(speed).fadeIn(speed);
+		$(activities).appendTo("#act").pause(speed).fadeIn(speed);
 	}
 	
+	function exitActivity() {
+		$(this).parent().fadeOut(speed);
+	}
+		
 	function dance() {
-		console.log('we\'re dancing');
-		var nav = '<div class="activity-back"><p class="back nav"><a>x</a></p>';
-		$('div#activities').fadeOut(speed);
+		var nav = '<p id="stop-dancing" class="back nav"><a id="act">Ok, we\'re done here.</a></p>';
+		$('#content').children().fadeOut(speed);
 		$(nav).hide().appendTo("#content").pause().fadeIn(speed);
-		window.addEventListener('deviceorientation', function(event) {
-			if (!event.gamma && !event.beta) {
-	          event.gamma = -(event.x * (180 / Math.PI));
-	          event.beta = -(event.y * (180 / Math.PI));
-	        }
-			var overThreshold = Math.abs(event.gamma) > 4 || Math.abs(event.beta) > 4;
-	        var gamma = overThreshold ? event.gamma : 0;
-	        var beta = overThreshold ? event.beta : 0;				
-			if (previousGamma != gamma || previousBeta != beta) {
-				var x = Math.round(4 * gamma);
-				var y = Math.round(4 * beta);			
-				$('#square').css('margin-left', -30 + x);
-				$('#shadow').css('margin-left', -60 + x);
-				$('#square').css('top', 60 + y);
-				$('#shadow').css('top', 140 + y);
-			}
-			previousGamma = gamma;
-			previousBeta = beta;
-		}, false);
+		console.log('we\'re dancing');
+		if (window.DeviceOrientationEvent) {
+		  console.log("DeviceOrientation is supported");
+		  window.addEventListener('deviceorientation', bustamove, false);
+		} else {
+			alert("Not supported on your device or browser. Sorry.");
+		}
+		
 	}
 	
-	function stopDancing() {
-		window.removeEventListener('deviceorientation', function(){});
-	}	
+	bustamove = function(eventData) { // this is the event handler for the device orientation in dance()
+        var LR = eventData.gamma;
+        var FB = eventData.beta;
+        var DIR = eventData.alpha;
+		var overThreshold = Math.abs(LR) > 4 || Math.abs(FB) > 4;
+        var gamma = overThreshold ? LR : 0;
+        var beta = overThreshold ? FB : 0;				
+		if (previousGamma != gamma || previousBeta != beta) {
+			var x = Math.round(4 * gamma);
+			var y = Math.round(4 * beta);			
+			$('#square').css('margin-left', -30 + x);
+			$('#shadow').css('margin-left', -60 + x);
+			$('#square').css('top', 60 + y);
+			$('#shadow').css('top', 140 + y);
+		}
+		previousGamma = gamma;
+		previousBeta = beta;
+	}
+	
+	function stopDancing() { // remove the handler and log the score for the activity
+		window.removeEventListener('deviceorientation', bustamove, false);
+		//store the points someplace temporarily until it's time to log everything?
+		//or send the score now and store it in the DB?
+	}
 
 	//for our server	
 	function sendToServer(data){
