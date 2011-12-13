@@ -32,6 +32,7 @@ class Checkin(models.Model):
 		inputs.append(self.venueData['tips']['count'])
 		inputs.append(self.venueData['createdAt'])
 		return(inputs)
+        
 
 
 from django.contrib import admin

@@ -38,7 +38,7 @@ var // DOM NodeList caches
 	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		stopDancing();
 	});
-	$('a#makeHappy').live('click', function(){logActivityivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
+	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
 	$('a#dance').live('click', function(){dance()});
 	
@@ -63,6 +63,7 @@ var // DOM NodeList caches
 	}// end vailidate()
 	
 	function addSquare() {
+		console.log(" adding sq");
 		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
 	}//end addSquare
 	
@@ -74,8 +75,12 @@ var // DOM NodeList caches
 			var lon = loc.coords.longitude;
 			var doStuff = "<div id='act'><p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p></div>";
 			if ( checkedIn == false) {
+				// console.log("checkedin false ");
+
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
+				// console.log("checkedin true ");
+
 				$(doStuff).hide().appendTo('#content').pause(speed).fadeIn(speed);
 				initActivities();
 			}

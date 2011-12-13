@@ -40,8 +40,9 @@ def newData(request):
 
 		return HttpResponse('nice post')
 
-	if request.method == 'GET':
-		return HttpResponse(settings.MEDIA_ROOT)
+    # if request.method == 'GET':
+        # return HttpResponse(settings.MEDIA_ROOT)
+
 
 
 

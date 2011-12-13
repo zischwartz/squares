@@ -20,14 +20,15 @@ class Net(models.Model):
 		return settings.MEDIA_ROOT + 'nets/' + self.square.id + '.net'
 
 	def firstTrain(self, checkin):
-		train_data = libfann.training_data()
+		# train_data = libfann.training_data()
 		ann = libfann.neural_net()
-
 		ann.create_standard(nLAYERS, nINPUTS, nHIDDEN1, nHIDDEN2, nOUTPUTS)
-
 		ann.train(checkin.get_inputs(), checkin.points)
-
 		ann.save(self.netFileName())
 
 	def execute(self, possible_venues):
 		return 'hi'
+        
+        
+from django.contrib import admin
+admin.site.register(Net)
