@@ -18,6 +18,7 @@ body {
 #content {
 	width:640px;
 	padding-top:240px;
+	padding-bottom:60px;
 	margin:0 auto;
 	text-align:center;
 }
@@ -40,6 +41,12 @@ h3, p {
 	left:50%;
 	top:60px;
 	margin-left:-30px;
+	-webkit-transition-property: x, y;
+	-webkit-transition-duration: 0.1s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: x, y;
+	-moz-transition-duration: 0.1s;
+	-moz-transition-timing-function: linear;
 }
 #shadow {
 	height:20px;
@@ -57,18 +64,53 @@ h3, p {
 	text-shadow: -1px -1px 0px #444444;
 	font-weight:bold;
 	color:#e5e5e5;
+	cursor:pointer;	
 }
-.checkin a {
-	background: #f79a28;
-	color:#ffffff;
-	text-shadow: -1px -1px 0px #e48924;	
-}
-p {
+p, a.nearby {
 	margin-bottom:14px;
 }
-p.button {
+a.nearby p {
+	margin-bottom:0;
+}
+.button {
 	margin:40px 0px;
 }
-p#more-options {
-	cursor:pointer;
+.nearby-venues {
+	margin-top:40px;
+}
+.button a:hover, a.nearby:hover, a.activity:hover {
+	background-color:#555555;
+}
+.nav a:hover {
+	background-color:#d1d1d1;
+}
+a.nearby, .button a, .nav a, a.activity {
+	-webkit-transition:background-color .2s ease-in;
+	-moz-transition:background-color .2s ease-in;
+	-o-transition:background-color .2s ease-in;
+	transition:background-color .2s ease-in;
+}	
+a.nearby, .nav a, a.activity {	
+	background: #666666;
+	box-shadow: 2px 2px 0px #f1f1f1;
+	text-shadow: -1px -1px 0px #444444;
+	color:#e5e5e5;
+	cursor:pointer;	
+	display:inline-block;
+	width:auto;
+	padding:14px 20px;
+	margin-right:14px;
+}
+a.nearby *, a.activity * {
+	color:#e5e5e5;
+}
+a.nearby h2, a.activity h2 {
+	color:#ffffff;
+}
+.nav a {
+	background:#dddddd;
+	float:left;
+	padding:5px 10px 7px 10px;
+	text-shadow: 1px 1px 0px #ffffff;
+	color:#666666;	
 }
