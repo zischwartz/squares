@@ -16,6 +16,7 @@ var // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
+	danceScore,
 	checkInDuration = 400; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
@@ -38,7 +39,7 @@ var // DOM NodeList caches
 	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		stopDancing();
 	});
-	$('a#makeHappy').live('click', function(){logActivityivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
+	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
 	$('a#dance').live('click', function(){dance()});
 	
@@ -198,6 +199,7 @@ var // DOM NodeList caches
 		
 	function dance() {
 		var nav = '<p id="stop-dancing" class="back nav"><a id="act">Ok, we\'re done here.</a></p>';
+		danceScore = 0;
 		$('#content').children().fadeOut(speed);
 		$(nav).hide().appendTo("#content").pause().fadeIn(speed);
 		console.log('we\'re dancing');
@@ -216,7 +218,7 @@ var // DOM NodeList caches
         var DIR = eventData.alpha;
 		var overThreshold = Math.abs(LR) > 4 || Math.abs(FB) > 4;
         var gamma = overThreshold ? LR : 0;
-        var beta = overThreshold ? FB : 0;				
+        var beta = overThreshold ? FB : 0;
 		if (previousGamma != gamma || previousBeta != beta) {
 			var x = Math.round(4 * gamma);
 			var y = Math.round(4 * beta);			
@@ -225,12 +227,16 @@ var // DOM NodeList caches
 			$('#square').css('top', 60 + y);
 			$('#shadow').css('top', 140 + y);
 		}
+		danceScore += (Math.abs(gamma) + Math.abs(beta))/10000;
+		console.log(danceScore);
 		previousGamma = gamma;
 		previousBeta = beta;
 	}
 	
 	function stopDancing() { // remove the handler and log the score for the activity
 		window.removeEventListener('deviceorientation', bustamove, false);
+		logActivity(danceScore);
+		danceScore = 0;
 		//store the points someplace temporarily until it's time to log everything?
 		//or send the score now and store it in the DB?
 	}
