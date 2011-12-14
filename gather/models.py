@@ -31,7 +31,7 @@ class Checkin(models.Model):
 		inputs.append(self.venueData['stats']['checkinsCount'])
 		inputs.append(self.venueData['hereNow']['count'])
 		inputs.append(self.venueData['tips']['count'])
-		inputs.append(int(self.venueData['location']['lat']))
+		# inputs.append(int(self.venueData['location']['lat']))
 		return(inputs)
 
 

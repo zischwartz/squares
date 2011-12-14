@@ -7,7 +7,8 @@ import log
 
 from gather.models import Square, Checkin
 nLAYERS = 4
-nINPUTS = 4
+nINPUTS = 3
+# nINPUTS = 4
 nHIDDEN1 = 4
 nHIDDEN2 = 3
 nOUTPUTS = 1
@@ -18,7 +19,7 @@ def get_inputs(venue):
 	inputs.append(venue['stats']['checkinsCount'])
 	inputs.append(venue['hereNow']['count'])
 	inputs.append(venue['stats']['tipCount'])
-	inputs.append(int(venue['location']['lat']))
+	# inputs.append(int(venue['location']['lat']))
 	
 	return(inputs)
 

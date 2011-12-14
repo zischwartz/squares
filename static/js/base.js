@@ -43,7 +43,7 @@ var test, // DOM NodeList caches
 
 	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		//();
-		//checkOut();
+		checkOut();
 		
 	});
 
