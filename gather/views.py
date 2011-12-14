@@ -18,10 +18,8 @@ def newData(request):
 			else:
 				return HttpResponse('new user!')
 
-
 		if data['type']=='checkin':
 			cid = data['checkinData']['id']
-
 			if not len(Checkin.objects.filter(id=cid)): 
 				#it's a new checkin
 				userSquare= Square.objects.get(id= data['userId'])
@@ -32,7 +30,6 @@ def newData(request):
 				return HttpResponse('you already checked in here')
 		
 		if data['type']=='activity':
-
 			checkin = Checkin.objects.get(id=data['id'])
 			checkin.points += int(data['points'])
 			checkin.save()
@@ -40,8 +37,9 @@ def newData(request):
 
 		return HttpResponse('nice post')
 
-	if request.method == 'GET':
-		return HttpResponse(settings.MEDIA_ROOT)
+    # if request.method == 'GET':
+        # return HttpResponse(settings.MEDIA_ROOT)
+
 
 
 

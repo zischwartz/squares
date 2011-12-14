@@ -1,4 +1,4 @@
-var // DOM NodeList caches
+var test, // DOM NodeList caches
 	home = 'http://127.0.0.1:8000/',
 	// home = 'http://squares.fredtruman.com/',
 	introduction = 'Hey there. Welcome to the wonderfully impulsive world of Squares, where code-based organisms with agency get you to drag them around all over town in the endless pursuit of their own cryptic and selfish goals.',
@@ -16,7 +16,9 @@ var // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
+
 	danceScore,
+
 	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
@@ -38,11 +40,13 @@ var // DOM NodeList caches
 	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		stopDancing();
 	});
+
 	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		//();
 		//checkOut();
 		
 	});
+
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
 	$('a#dance').live('click', function(){dance()});
@@ -68,6 +72,7 @@ var // DOM NodeList caches
 	}// end vailidate()
 	
 	function addSquare() {
+		console.log(" adding sq");
 		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
 	}//end addSquare
 	
@@ -79,8 +84,12 @@ var // DOM NodeList caches
 			var lon = loc.coords.longitude;
 			var doStuff = "<div id='act'><p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p></div>";
 			if ( checkedIn == false) {
+				// console.log("checkedin false ");
+
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
+				// console.log("checkedin true ");
+
 				$(doStuff).hide().appendTo('#content').pause(speed).fadeIn(speed);
 				initActivities();
 			}
@@ -97,7 +106,9 @@ var // DOM NodeList caches
 			dataType: 'json',
 			success: function(json) {
 				// just random for now
-				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; // calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+				
+				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; 
+				// calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
 				desiredVenueID = desiredVenueNumber.venue.id;
 				desiredVenueName = desiredVenueNumber.venue.name; 
 				desiredVenueAddress = desiredVenueNumber.venue.location.address;
@@ -116,6 +127,33 @@ var // DOM NodeList caches
 	}// end findNearby()
 
 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+	test=json;
+	// console.log('jssson', json);
+	venues=[];
+	
+	$.each(json.groups[0].items, function(){
+		// venues.push(json.groups[0].items[v].venue);
+		// console.log(json.groups[0].items);
+		// console.log(this.venue);
+		venues.push(this.venue)
+		});
+	
+
+	
+	// console.log(venues);
+	console.log('get desired venue called'); 
+	$.ajax({
+		url: "/learn/choose/"+userId,
+		// async: false,
+		type: 'POST',
+		dataType: 'json',
+		data: $.toJSON(venues),
+		success: function(data){
+			console.log('data returned from sending venues!');
+			console.log(data);
+			}
+		});
+		
 		var desiredVenueNumber = Math.floor(Math.random()*30); // for now it just calls a random from the array
 		return desiredVenueNumber;
 	}
@@ -140,6 +178,11 @@ var // DOM NodeList caches
 	
 	function checkOut() {
 		//send stuff to zach's url
+		alert('you checked out!');
+		$.ajax({
+			type: 'GET',
+			url: "/learn/train/"+checkinId,
+		});
 		checkedIn = false;
 		getLocation();
 	}

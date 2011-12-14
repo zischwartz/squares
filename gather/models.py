@@ -1,5 +1,6 @@
 from django.db import models
 from jsonfield.fields import JSONField
+import log
 
 # Create your models here.
 
@@ -30,7 +31,7 @@ class Checkin(models.Model):
 		inputs.append(self.venueData['stats']['checkinsCount'])
 		inputs.append(self.venueData['hereNow']['count'])
 		inputs.append(self.venueData['tips']['count'])
-		inputs.append(self.venueData['createdAt'])
+		inputs.append(int(self.venueData['location']['lat']))
 		return(inputs)
 
 
