@@ -13,17 +13,22 @@ var test, // DOM NodeList caches
 	userPhoto='',
 	lastCheckInName = 'a TEST location',
 	nearbyVenues = [],
+	rankedVenues = [],
 	speed = 300,
 	previousBeta,
 	previousGamma,
-	lastCheckInTime, // time of your last check-in
+
 	danceScore,
 
-	checkInDuration = 2; // how long check-ins last, in minutes
+	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
 		return this;
+	};
+	
+	Array.max = function( array ){
+	    return Math.max.apply( Math, array );
 	};
 
 	$("p#more-options").live("click", function(){
@@ -34,35 +39,18 @@ var test, // DOM NodeList caches
 		checkIN($(this).attr('title'));
 	});
 	$(".back a").live("click", function(){ // this is a general interface function for back buttons. the ID of the <a> element should correspond to the ID of the <div> you want to fade back in
-		
+		$('#content').children().fadeOut(speed);
+		$('div#' + this.id).pause(speed).fadeIn(speed);
 	});
 	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
-		$('#content').children().fadeOut(speed);
-		$('div#' + this.id).pause(speed).fadeIn(speed);
 		stopDancing();
 	});
-	$("#nearby a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
-		$('#content').children().fadeOut(speed);
-		$('div#' + this.id).pause(speed).fadeIn(speed);
-	});
+
 	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
-		$('#content').children().fadeOut(speed);
-		$('div#' + this.id).pause(speed).fadeIn(speed);
+		//();
 		checkOut();
 	});
-	$("#try-again a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
-		var currentTime = Math.round(new Date().getTime() / 1000);		
-		var elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes
-		if(elapsedTime < checkInDuration) {
-			checkedIn = true;
-			console.log('still checked in');
-			$('div#' + this.id).pause(speed).fadeIn(speed);
-		} else {
-			$('#content').children().fadeOut(speed);
-			checkedIn = false;
-			getLocation();		
-		}
-	});
+
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
 	$('a#dance').live('click', function(){dance()});
@@ -82,13 +70,13 @@ var test, // DOM NodeList caches
 
 
 	function validate() { // this sticks a button with an API validation link in it
-		//console.log("You don\'t seem to have an access token");
+		console.log("You don\'t seem to have an access token");
 		$('#content').append('<p id="introduction">' + introduction + '</p>'); // add an introductory paragraph
 		$('#content').append('<p class="button"><a href="' + validateAddress + '">Ok, let\'s get my Square and do some stuff!</a></p>'); // add a link to log in to foursquare
 	}// end vailidate()
 	
 	function addSquare() {
-		//console.log(" adding sq");
+		console.log(" adding sq");
 		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
 	}//end addSquare
 	
@@ -101,9 +89,11 @@ var test, // DOM NodeList caches
 			var doStuff = "<div id='act'><p>Well, here we are at <strong>" + lastCheckInName + "</strong>, " + userName + ". Awesome!</p> <p>Now let's do some stuff.</p></div>";
 			if ( checkedIn == false) {
 				// console.log("checkedin false ");
+
 				findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
 			} else {
 				// console.log("checkedin true ");
+
 				$(doStuff).hide().appendTo('#content').pause(speed).fadeIn(speed);
 				initActivities();
 			}
@@ -133,7 +123,7 @@ var test, // DOM NodeList caches
 					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
 					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
 				});
-				//console.log('desiredVenueName = ' + desiredVenueName);
+				console.log('desiredVenueName = ' + desiredVenueName);
 				$('#content').append('<div id="requested"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out!<br /> But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
 			}
 		});		
@@ -141,32 +131,39 @@ var test, // DOM NodeList caches
 	}// end findNearby()
 
 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
-	test=json;
-	// console.log('jssson', json);
-	venues=[];
+		test=json;
+		// console.log('jssson', json);
+		venues=[];
 	
-	$.each(json.groups[0].items, function(){
-		// venues.push(json.groups[0].items[v].venue);
-		// console.log(json.groups[0].items);
-		// console.log(this.venue);
-		venues.push(this.venue)
-		});
+		$.each(json.groups[0].items, function(){
+			// venues.push(json.groups[0].items[v].venue);
+			// console.log(json.groups[0].items);
+			// console.log(this.venue);
+			venues.push(this.venue)
+			});
 	
 
 	
-	// console.log(venues);
-	console.log('get desired venue called'); 
-	$.ajax({
-		url: "/learn/choose/"+userId,
-		// async: false,
-		type: 'POST',
-		dataType: 'json',
-		data: $.toJSON(venues),
-		success: function(data){
-			console.log('data returned from sending venues!');
-			console.log(data);
-			}
-		});
+		// console.log(venues);
+		console.log('get desired venue called'); 
+		$.ajax({
+			url: "/learn/choose/"+userId,
+			// async: false,
+			type: 'POST',
+			dataType: 'json',
+			data: $.toJSON(venues),
+			success: function(data){
+				console.log('data returned from sending venues!');
+				//console.log(data);
+				$.each(data, function() {
+					rankedVenues.push(this[1][0]);
+					//var venueAddress = this.venue.location.address;
+					//if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+					//nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
+				});
+				console.log(Array.max(rankedVenues));
+				}
+			});
 		
 		var desiredVenueNumber = Math.floor(Math.random()*30); // for now it just calls a random from the array
 		return desiredVenueNumber;
@@ -174,9 +171,9 @@ var test, // DOM NodeList caches
 	
 	function checkIN(venueID) {
 		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + token[1] + '&broadcast=public&venueId=' + venueID , function(Cdata) {
-			//console.log('checkin', Cdata);
+			console.log('checkin', Cdata);
 			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(Vdata){
-				//console.log('CHECKING IN');
+				console.log('CHECKING IN');
 				// alert('Venue Data Loaded');	
 				sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'checkinData': Cdata.response.checkin, 'venueData': Vdata.response.venue });
 				checkinId = Cdata.response.checkin.id;
@@ -191,20 +188,14 @@ var test, // DOM NodeList caches
 	}
 	
 	function checkOut() {
-		var currentTime = Math.round(new Date().getTime() / 1000);		
-		var elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes
 		//send stuff to zach's url
 		alert('you checked out!');
 		$.ajax({
 			type: 'GET',
 			url: "/learn/train/"+checkinId,
 		});
-		if(elapsedTime < checkInDuration) {
-			$('<div id="try-again"><p class="back nav"><a id="requested">Are you ready?</a></p><p>Well, I had fun at ' + lastCheckInName + '. Check back in a bit to take me somewhere else.</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
-		} else {
-			checkedIn = false;
-			getLocation();
-		}
+		checkedIn = false;
+		getLocation();
 	}
 
 	function getMoreVenueOptions() {
@@ -234,6 +225,7 @@ var test, // DOM NodeList caches
 		var getCheckins = "https://api.foursquare.com/v2/users/self/checkins?oauth_token=" + token[1];
 		var currentTime = Math.round(new Date().getTime() / 1000);
 		var elapsedTime = 0; // time between now and your last check-in			
+		var lastCheckInTime = 0; // time of your last check-in
 		$.ajax({
 			url: getCheckins,
 			async: false,
@@ -248,7 +240,7 @@ var test, // DOM NodeList caches
 				catch(err)
 				{
 					console.log(err);
-					//elapsedTime = 10000;
+					elapsedTime = 10000;
 				}
 			}
 		});
