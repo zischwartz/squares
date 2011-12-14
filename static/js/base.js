@@ -17,7 +17,7 @@ var // DOM NodeList caches
 	previousBeta,
 	previousGamma,
 	danceScore,
-	checkInDuration = 400; // how long check-ins last, in minutes
+	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
@@ -38,6 +38,11 @@ var // DOM NodeList caches
 	});
 	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		stopDancing();
+	});
+	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
+		//();
+		checkOut();
+		
 	});
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
@@ -98,6 +103,7 @@ var // DOM NodeList caches
 				desiredVenueName = desiredVenueNumber.venue.name; 
 				desiredVenueAddress = desiredVenueNumber.venue.location.address;
 				if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
+				console.log(json.response.groups[0].items);
 				$.each(json.response.groups[0].items, function() {
 					var venueAddress = this.venue.location.address;
 					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
@@ -132,6 +138,12 @@ var // DOM NodeList caches
 			);
 			// window.location.reload();
 		});
+	}
+	
+	function checkOut() {
+		//send stuff to zach's url
+		checkedIn = false;
+		getLocation();
 	}
 
 	function getMoreVenueOptions() {
@@ -189,7 +201,7 @@ var // DOM NodeList caches
 	} // end areYouCheckedIn()
 	
 	function initActivities() {
-		var activities = "<a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
+		var activities = "<p id='checkout' class='back nav'><a id='requested'>Ok, we\'re done here.</a></p><a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
 		$(activities).appendTo("#act").pause(speed).fadeIn(speed);
 	}
 	
