@@ -1,4 +1,4 @@
-var // DOM NodeList caches
+var test, // DOM NodeList caches
 	home = 'http://127.0.0.1:8000/',
 	// home = 'http://squares.fredtruman.com/',
 	introduction = 'Hey there. Welcome to the wonderfully impulsive world of Squares, where code-based organisms with agency get you to drag them around all over town in the endless pursuit of their own cryptic and selfish goals.',
@@ -116,13 +116,27 @@ var // DOM NodeList caches
 	}// end findNearby()
 
 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+	test=json;
+	console.log('jssson', json);
+	venues=[];
+	
+	$.each(json.groups[0].items, function(){
+		// venues.push(json.groups[0].items[v].venue);
+		// console.log(json.groups[0].items);
+		console.log(this.venue);
+		venues.push(this.venue)
+		});
+	
+
+	
+	console.log(venues);
 	console.log('get desired venue called'); 
 	$.ajax({
 		url: "/learn/choose/"+userId,
 		// async: false,
 		type: 'POST',
 		dataType: 'json',
-		data: $.toJSON(json),
+		data: $.toJSON(venues),
 		success: function(data){
 			console.log('data returned from sending venues');
 			console.log(data);

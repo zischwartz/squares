@@ -12,8 +12,17 @@ nHIDDEN1 = 4
 nHIDDEN2 = 3
 nOUTPUTS = 1
 
-# Create your models here.
 
+def get_inputs(venue):
+	inputs = []
+	inputs.append(venue['stats']['checkinsCount'])
+	inputs.append(venue['hereNow']['count'])
+	inputs.append(venue['stats']['tipCount'])
+	inputs.append(venue['createdAt'])
+	return(inputs)
+
+
+# Create your models here.
 
 class Net(models.Model):
 	square = models.ForeignKey(Square)
@@ -40,16 +49,16 @@ class Net(models.Model):
 		ann.save(filename)
 
 
-
 	def execute(self, possible_venues):
 		ann = libfann.neural_net()
 		filename= self.netFileName()
 		ann.create_from_file(filename)
 		processed_venues=[]
-		for venue in possible_venues:
-			score=venue.get_venue_inputs()
-			name= venue['name']
-			vid= venue['id']
+		for v in possible_venues:
+			log.info(v)
+			score=ann.run(get_inputs(v))
+			name= v['name']
+			vid= v['id']
 			processed_venues.append([name, score, vid])
 		return processed_venues
 		

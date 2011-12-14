@@ -27,7 +27,8 @@ def train(request, id):
 def choose(request, id):
 	# if request.method == 'POST':
 	data = simplejson.loads(request.raw_post_data)
-	# items= data
+	# log.info(data)
+	items= data
 	square = Square.objects.get(id=id)
 	net = Net.objects.get(square=square)
 	processed_venues= net.execute(items)
