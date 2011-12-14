@@ -16,6 +16,9 @@ var test, // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
+
+	danceScore,
+
 	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
@@ -38,6 +41,13 @@ var test, // DOM NodeList caches
 	$("#stop-dancing a").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		stopDancing();
 	});
+
+	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
+		//();
+		checkOut();
+		
+	});
+
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
 	$('a#makeSad').live('click', function(){logActivity(-5)});
 	$('a#dance').live('click', function(){dance()});
@@ -104,6 +114,7 @@ var test, // DOM NodeList caches
 				desiredVenueName = desiredVenueNumber.venue.name; 
 				desiredVenueAddress = desiredVenueNumber.venue.location.address;
 				if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
+				console.log(json.response.groups[0].items);
 				$.each(json.response.groups[0].items, function() {
 					var venueAddress = this.venue.location.address;
 					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
@@ -117,19 +128,19 @@ var test, // DOM NodeList caches
 
 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
 	test=json;
-	console.log('jssson', json);
+	// console.log('jssson', json);
 	venues=[];
 	
 	$.each(json.groups[0].items, function(){
 		// venues.push(json.groups[0].items[v].venue);
 		// console.log(json.groups[0].items);
-		console.log(this.venue);
+		// console.log(this.venue);
 		venues.push(this.venue)
 		});
 	
 
 	
-	console.log(venues);
+	// console.log(venues);
 	console.log('get desired venue called'); 
 	$.ajax({
 		url: "/learn/choose/"+userId,
@@ -138,7 +149,7 @@ var test, // DOM NodeList caches
 		dataType: 'json',
 		data: $.toJSON(venues),
 		success: function(data){
-			console.log('data returned from sending venues');
+			console.log('data returned from sending venues!');
 			console.log(data);
 			}
 		});
@@ -165,6 +176,16 @@ var test, // DOM NodeList caches
 			);
 			// window.location.reload();
 		});
+	}
+	
+	function checkOut() {
+		//send stuff to zach's url
+		$.ajax({
+			type: 'GET',
+			url: "/learn/train/"+checkinId,
+		});
+		checkedIn = false;
+		getLocation();
 	}
 
 	function getMoreVenueOptions() {
@@ -222,7 +243,7 @@ var test, // DOM NodeList caches
 	} // end areYouCheckedIn()
 	
 	function initActivities() {
-		var activities = "<a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
+		var activities = "<p id='checkout' class='back nav'><a id='requested'>Ok, we\'re done here.</a></p><a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
 		$(activities).appendTo("#act").pause(speed).fadeIn(speed);
 	}
 	
@@ -232,6 +253,7 @@ var test, // DOM NodeList caches
 		
 	function dance() {
 		var nav = '<p id="stop-dancing" class="back nav"><a id="act">Ok, we\'re done here.</a></p>';
+		danceScore = 0;
 		$('#content').children().fadeOut(speed);
 		$(nav).hide().appendTo("#content").pause().fadeIn(speed);
 		console.log('we\'re dancing');
@@ -250,7 +272,7 @@ var test, // DOM NodeList caches
         var DIR = eventData.alpha;
 		var overThreshold = Math.abs(LR) > 4 || Math.abs(FB) > 4;
         var gamma = overThreshold ? LR : 0;
-        var beta = overThreshold ? FB : 0;				
+        var beta = overThreshold ? FB : 0;
 		if (previousGamma != gamma || previousBeta != beta) {
 			var x = Math.round(4 * gamma);
 			var y = Math.round(4 * beta);			
@@ -259,12 +281,16 @@ var test, // DOM NodeList caches
 			$('#square').css('top', 60 + y);
 			$('#shadow').css('top', 140 + y);
 		}
+		danceScore += (Math.abs(gamma) + Math.abs(beta))/10000;
+		console.log(danceScore);
 		previousGamma = gamma;
 		previousBeta = beta;
 	}
 	
 	function stopDancing() { // remove the handler and log the score for the activity
 		window.removeEventListener('deviceorientation', bustamove, false);
+		logActivity(danceScore);
+		danceScore = 0;
 		//store the points someplace temporarily until it's time to log everything?
 		//or send the score now and store it in the DB?
 	}

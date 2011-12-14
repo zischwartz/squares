@@ -26,14 +26,11 @@ def train(request, id):
 	
 def choose(request, id):
 	# if request.method == 'POST':
-	data = simplejson.loads(request.raw_post_data)
-	# log.info(data)
-	items=data
-	# items= data["groups"][0]["items"]
+	items = simplejson.loads(request.raw_post_data)
 	log.info("ITEMSSSS")
 	log.info(items)
 	square = Square.objects.get(id=id)
 	net = Net.objects.get(square=square)
 	processed_venues= net.execute(items)
 		
-	return HttpResponse(processed_venues)
+	return HttpResponse(simplejson.dumps(processed_venues))
