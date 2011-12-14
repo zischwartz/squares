@@ -29,7 +29,6 @@ var // DOM NodeList caches
 		getMoreVenueOptions();
 	});
 	$("a.checkin").live("click", function(){
-		lastCheckInName = $(this).text();
 		checkIN($(this).attr('title'));
 	});
 	$(".back a").live("click", function(){ // this is a general interface function for back buttons. the ID of the <a> element should correspond to the ID of the <div> you want to fade back in
@@ -41,7 +40,7 @@ var // DOM NodeList caches
 	});
 	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		//();
-		checkOut();
+		//checkOut();
 		
 	});
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
@@ -74,7 +73,7 @@ var // DOM NodeList caches
 	
 	function getLocation() { // look at the GPS of the device and then call the API
 		$('#content').children().fadeOut(speed); //clear the interface if we just checked in through the app
-		console.log('getLocation()');
+		//console.log('getLocation()');
 		navigator.geolocation.getCurrentPosition(function(loc){
 			var lat = loc.coords.latitude;
 			var lon = loc.coords.longitude;
@@ -103,13 +102,14 @@ var // DOM NodeList caches
 				desiredVenueName = desiredVenueNumber.venue.name; 
 				desiredVenueAddress = desiredVenueNumber.venue.location.address;
 				if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
-				console.log(json.response.groups[0].items);
+				//console.log(json.response.groups[0].items);
 				$.each(json.response.groups[0].items, function() {
 					var venueAddress = this.venue.location.address;
 					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
 					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
 				});
-				$('#content').append('<div id="requested"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out! But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+				console.log('desiredVenueName = ' + desiredVenueName);
+				$('#content').append('<div id="requested"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out!<br /> But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
 			}
 		});		
 				
@@ -126,13 +126,11 @@ var // DOM NodeList caches
 			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(Vdata){
 				console.log('CHECKING IN');
 				// alert('Venue Data Loaded');	
-
 				sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'checkinData': Cdata.response.checkin, 'venueData': Vdata.response.venue });
 				checkinId = Cdata.response.checkin.id;
+				lastCheckInName = Cdata.response.checkin.venue.name;
 				checkedIn= true; //AHA!
 				// alert(checkinId)
-				//instead of reloading the window, lets just do getLocation
-				// cool, I had to add some stuff to clear the interface into getLocation, but this is a good idea
 				getLocation();
 				}			
 			);
@@ -201,7 +199,7 @@ var // DOM NodeList caches
 	} // end areYouCheckedIn()
 	
 	function initActivities() {
-		var activities = "<p id='checkout' class='back nav'><a id='requested'>Ok, we\'re done here.</a></p><a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
+		var activities = "<p id='checkout' class='back nav'><a id='requested'>Ok, let\'s leave " + lastCheckInName + ".</a></p><a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
 		$(activities).appendTo("#act").pause(speed).fadeIn(speed);
 	}
 	
@@ -210,7 +208,7 @@ var // DOM NodeList caches
 	}
 		
 	function dance() {
-		var nav = '<p id="stop-dancing" class="back nav"><a id="act">Ok, we\'re done here.</a></p>';
+		var nav = '<p id="stop-dancing" class="back nav"><a id="act">Ok, we\'re done dancing.</a></p>';
 		danceScore = 0;
 		$('#content').children().fadeOut(speed);
 		$(nav).hide().appendTo("#content").pause().fadeIn(speed);
