@@ -28,7 +28,10 @@ def choose(request, id):
 	# if request.method == 'POST':
 	data = simplejson.loads(request.raw_post_data)
 	# log.info(data)
-	items= data
+	items=data
+	# items= data["groups"][0]["items"]
+	log.info("ITEMSSSS")
+	log.info(items)
 	square = Square.objects.get(id=id)
 	net = Net.objects.get(square=square)
 	processed_venues= net.execute(items)

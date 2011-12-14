@@ -18,7 +18,8 @@ def get_inputs(venue):
 	inputs.append(venue['stats']['checkinsCount'])
 	inputs.append(venue['hereNow']['count'])
 	inputs.append(venue['stats']['tipCount'])
-	inputs.append(venue['createdAt'])
+	inputs.append(int(venue['location']['lat']))
+	
 	return(inputs)
 
 
