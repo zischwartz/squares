@@ -16,7 +16,7 @@ var // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
-	checkInDuration = 400; // how long check-ins last, in minutes
+	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
@@ -97,7 +97,9 @@ var // DOM NodeList caches
 			dataType: 'json',
 			success: function(json) {
 				// just random for now
-				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; // calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+				
+				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; 
+				// calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
 				desiredVenueID = desiredVenueNumber.venue.id;
 				desiredVenueName = desiredVenueNumber.venue.name; 
 				desiredVenueAddress = desiredVenueNumber.venue.location.address;
@@ -114,6 +116,19 @@ var // DOM NodeList caches
 	}// end findNearby()
 
 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+	console.log('get desired venue called'); 
+	$.ajax({
+		url: "/learn/choose/"+userId,
+		// async: false,
+		type: 'POST',
+		dataType: 'json',
+		data: $.toJSON(json),
+		success: function(data){
+			console.log('data returned from sending venues');
+			console.log(data);
+			}
+		});
+		
 		var desiredVenueNumber = Math.floor(Math.random()*30); // for now it just calls a random from the array
 		return desiredVenueNumber;
 	}

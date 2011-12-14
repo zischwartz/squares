@@ -4,6 +4,7 @@ from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('learn.views',
     url(r'^train/(?P<id>.*)$', 'train'),
+    url(r'^choose/(?P<id>.*)$', 'choose'),
 )
 
 
