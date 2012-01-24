@@ -17,9 +17,10 @@ var test, // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
-
+	squareDimension = 60,
+	squarePixelDim = 10,
+	pixelCounter = 0,
 	danceScore,
-
 	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
@@ -49,6 +50,7 @@ var test, // DOM NodeList caches
 	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		//();
 		checkOut();
+
 	});
 
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
@@ -78,6 +80,7 @@ var test, // DOM NodeList caches
 	function addSquare() {
 		console.log(" adding sq");
 		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
+		addPixels();
 	}//end addSquare
 	
 	function getLocation() { // look at the GPS of the device and then call the API
@@ -317,6 +320,25 @@ var test, // DOM NodeList caches
 
 	function logActivity(points){
 		sendToServer({'type':'activity', 'points':points, 'id':checkinId});	
+	}
+	
+	function addPixels() {
+		$('#square').css('height', squareDimension);
+		$('#square').css('width', squareDimension);
+		$('#square').css('marginTop', -squareDimension/2);
+		$('#square').css('marginLeft', -squareDimension/2);
+		for(var i=0; i<squarePixelDim; i++) {
+			for(var j=0; j<squarePixelDim; j++) {
+				var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';				
+				var pixel = '<div class="' + pixelCounter + '"></div>';
+				$('#square').append(pixel);
+				$('#square .' + pixelCounter).css('background', hue);
+				pixelCounter++;
+			}
+			
+		}
+		$('#square div').css('height',squareDimension/squarePixelDim);
+		$('#square div').css('width',squareDimension/squarePixelDim);
 	}
 
 			

@@ -48,6 +48,9 @@ h3, p {
 	-moz-transition-duration: 0.1s;
 	-moz-transition-timing-function: linear;
 }
+#square div {
+	float:left;
+}
 #shadow {
 	height:20px;
 	width:120px;
