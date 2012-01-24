@@ -2,6 +2,9 @@ from django.db import models
 from jsonfield.fields import JSONField
 import log
 
+import common
+
+# from learn.models import get_inputs
 # Create your models here.
 
 class Square(models.Model):
@@ -27,12 +30,13 @@ class Checkin(models.Model):
 		return self.square.userName +' at '+ self.checkinData['venue']['name']
 
 	def get_inputs(self):
-		inputs = []
-		inputs.append(self.venueData['stats']['checkinsCount'])
-		inputs.append(self.venueData['hereNow']['count'])
-		inputs.append(self.venueData['tips']['count'])
-		# inputs.append(int(self.venueData['location']['lat']))
-		return(inputs)
+                inputs = common.get_inputs(self.venueData)
+                return(inputs)
+                # inputs = []
+		# inputs.append(self.venueData['stats']['checkinsCount'])
+		# inputs.append(self.venueData['hereNow']['count'])
+		# inputs.append(self.venueData['tips']['count'])
+		# return(inputs)
 
 
 from django.contrib import admin
