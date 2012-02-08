@@ -78,7 +78,7 @@ class Net(models.Model):
 		processed_venues=[]
 		for v in possible_venues:
 			log.info(v)
-			score=ann.run(common.get_inputs(v))
+			score=ann.run(common.get_inputs(v))[0]
 			name= v['name']
 			vid= v['id']
 			processed_venues.append([name, score, vid])

@@ -32,5 +32,4 @@ def choose(request, id):
 	square = Square.objects.get(id=id)
 	net = Net.objects.get(square=square)
 	processed_venues= net.execute(items)
-		
 	return HttpResponse(simplejson.dumps(processed_venues))

@@ -19,12 +19,16 @@ def get_inputs(venue):
 	inputs.append(venue['stats']['checkinsCount'])
 	inputs.append(venue['hereNow']['count'])
 	inputs.append(venue['stats']['tipCount'])
+        # usersCount (regulars?)
+        # friends here
+        # number of photos    
+        # categories
         
         inputs = map(scale, inputs)        
 
         # print 'INPUTS: ' 
         # print inputs
-        # return(inputs)
+        return(inputs)
 
 
 
