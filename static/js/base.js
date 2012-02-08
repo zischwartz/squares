@@ -17,7 +17,7 @@ var test, // DOM NodeList caches
 	speed = 300,
 	previousBeta,
 	previousGamma,
-	squareDimension = 60,
+	squareDimension = 120,
 	squarePixelDim = 10,
 	pixelCounter = 0,
 	danceScore,
@@ -80,6 +80,8 @@ var test, // DOM NodeList caches
 	function addSquare() {
 		console.log(" adding sq");
 		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
+		$('#shadow').css('top',2*squareDimension + 'px');
+		$('#content').css('paddingTop',240+squareDimension + 'px');		
 		addPixels();
 	}//end addSquare
 	
@@ -113,7 +115,6 @@ var test, // DOM NodeList caches
 			dataType: 'json',
 			success: function(json) {
 				// just random for now
-				
 				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; 
 				// calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
 				desiredVenueID = desiredVenueNumber.venue.id;
@@ -127,7 +128,7 @@ var test, // DOM NodeList caches
 					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
 				});
 				console.log('desiredVenueName = ' + desiredVenueName);
-				$('#content').append('<div id="requested"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out!<br /> But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+				$('#content').append('<div id="requested"><p>Hello ' + userName + '. Me square.<br /> Me want go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
 			}
 		});		
 				
@@ -202,11 +203,12 @@ var test, // DOM NodeList caches
 	}
 
 	function getMoreVenueOptions() {
-		$('<div id="nearby"><p class="back nav"><a id="requested">Nevermind.</a></p><p>Ok, so where would you rather go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
+		$('<div id="nearby"><p>Ok, where you want to go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
 		$('<div/>', {
 			'class': 'nearby-venues',
 			html: nearbyVenues.join('')
 		}).hide().appendTo('#content').pause(speed).fadeIn(speed);
+		$('<p class="back nav button"><a id="requested">Nevermind.</a></p>').hide().appendTo('#content').pause(speed).fadeIn(speed);
 	}
 
 	function getUserInfo() {
@@ -256,8 +258,9 @@ var test, // DOM NodeList caches
 	} // end areYouCheckedIn()
 	
 	function initActivities() {
-		var activities = "<p id='checkout' class='back nav'><a id='requested'>Ok, let\'s leave " + lastCheckInName + ".</a></p><a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
+		var activities = "<p class='button'><a id='makeHappy' class='activity'> Make me happy</a></p><p class='button'><a id='makeSad' class='activity'>Make me sad</a></p><p class='button'><a id='dance' class='activity'>Let\'s dance!</a></p>";
 		$(activities).appendTo("#act").pause(speed).fadeIn(speed);
+		$("<p id='checkout' class='back nav'><a id='requested'>Ok, let\'s leave " + lastCheckInName + ".</a></p>").appendTo("#act").pause(speed).fadeIn(speed);
 	}
 	
 	function exitActivity() {
@@ -289,10 +292,10 @@ var test, // DOM NodeList caches
 		if (previousGamma != gamma || previousBeta != beta) {
 			var x = Math.round(4 * gamma);
 			var y = Math.round(4 * beta);			
-			$('#square').css('margin-left', -30 + x);
-			$('#shadow').css('margin-left', -60 + x);
-			$('#square').css('top', 60 + y);
-			$('#shadow').css('top', 140 + y);
+			$('#square').css('margin-left', -(squareDimension/2) + x);
+			$('#shadow').css('margin-left', -squareDimension + x);
+			$('#square').css('top', 100 + y);
+			$('#shadow').css('top', 2*squareDimension + y + 'px');
 		}
 		danceScore += (Math.abs(gamma) + Math.abs(beta))/10000;
 		console.log(danceScore);
@@ -323,6 +326,13 @@ var test, // DOM NodeList caches
 	}
 	
 	function addPixels() {
+		// the idea here is to divide the square into regions based on the number of parameters that we are using
+		// and the color of each region is based on the parameters average, and the internal dimensions are determined by 
+		// the percentage change (+plus or -minus)
+		// alpha, luminosity and/or the smile (but probably the 'bounciness') is determined by the happiness score
+		// The backend will deliver:
+		// 1). The last score and average cumaltive score for each input between 0-1
+		// 2). The last score and average cumulative happiness score between 0-1
 		$('#square').css('height', squareDimension);
 		$('#square').css('width', squareDimension);
 		$('#square').css('marginTop', -squareDimension/2);

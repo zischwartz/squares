@@ -12,18 +12,19 @@
 }
 body {
 	background:#ffffff;
-	font-size:14px;
+	font-size:21px;
 	font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;	
 }
 #content {
 	width:640px;
 	padding-top:240px;
 	padding-bottom:80px;
+	overflow:hidden;
 	margin:0 auto;
 	text-align:center;
 }
 h2, h3 {
-	font-size:14px;
+	font-size:21px;
 	font-weight:normal;
 }
 h2 {
@@ -52,22 +53,25 @@ h3, p {
 	float:left;
 }
 #shadow {
-	height:20px;
-	width:120px;
+	height:40px;
+	width:240px;
 	position:absolute;
 	left:50%;
-	top:180px;
-	margin-left:-60px;
+	top:120px;
+	margin-left:-120px;
 	background:url(../images/shadow.png) top left no-repeat;
+	background-size:100%;
 }
 .button a {
-	padding:14px 20px;
+	padding:21px 42px;
 	background: #666666;
 	box-shadow: 2px 2px 0px #f1f1f1;
 	text-shadow: -1px -1px 0px #444444;
 	font-weight:bold;
 	color:#e5e5e5;
-	cursor:pointer;	
+	cursor:pointer;
+	width:540px;
+	display:inline-block;	
 }
 p, a.nearby {
 	margin-bottom:14px;
@@ -75,17 +79,14 @@ p, a.nearby {
 a.nearby p {
 	margin-bottom:0;
 }
-.button {
-	margin:40px 0px;
-}
 .nearby-venues {
 	margin-top:40px;
 }
 .button a:hover, a.nearby:hover, a.activity:hover {
 	background-color:#555555;
 }
-.nav a:hover {
-	background-color:#d1d1d1;
+.back a:hover {
+	background-color:#a32b2b;
 }
 a.nearby, .button a, .nav a, a.activity {
 	-webkit-transition:background-color .2s ease-in;
@@ -100,9 +101,8 @@ a.nearby, .nav a, a.activity {
 	color:#e5e5e5;
 	cursor:pointer;	
 	display:inline-block;
-	width:auto;
-	padding:14px 20px;
-	margin-right:14px;
+	width:540px;
+	padding:21px 0px;
 }
 a.nearby *, a.activity * {
 	color:#e5e5e5;
@@ -111,14 +111,15 @@ a.nearby h2, a.activity h2 {
 	color:#ffffff;
 }
 .nav {
-	text-align:center;
-	position:fixed;
-	top:20px;
+
 }
 .nav a {
-	background:#dddddd;
-	float:left;
-	padding:5px 10px 7px 10px;
-	text-shadow: 1px 1px 0px #ffffff;
+
+	display:inline-block;
 	color:#666666;	
+}
+.back a {
+	background:#6f2c2c;
+	text-shadow: 1px 1px 0px #4e1d1d;
+	color:#ffffff;
 }
