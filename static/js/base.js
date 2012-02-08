@@ -13,17 +13,23 @@ var test, // DOM NodeList caches
 	userPhoto='',
 	lastCheckInName = 'a TEST location',
 	nearbyVenues = [],
+	rankedVenues = [],
 	speed = 300,
 	previousBeta,
 	previousGamma,
-
+	squareDimension = 120,
+	squarePixelDim = 10,
+	pixelCounter = 0,
 	danceScore,
-
 	checkInDuration = 1; // how long check-ins last, in minutes
 	
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
 		return this;
+	};
+	
+	Array.max = function( array ){
+	    return Math.max.apply( Math, array );
 	};
 
 	$("p#more-options").live("click", function(){
@@ -44,7 +50,7 @@ var test, // DOM NodeList caches
 	$("#checkout a#requested").live("click", function(){ //this is the <p> id to stop the eventLstener. the interface functionality is handled by the '.back a' click function above
 		//();
 		checkOut();
-		
+
 	});
 
 	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
@@ -74,6 +80,9 @@ var test, // DOM NodeList caches
 	function addSquare() {
 		console.log(" adding sq");
 		$('<div id="square"></div><div id="shadow"></div>').hide().prependTo('body').pause(speed).fadeIn(speed); // add an introductory paragraph
+		$('#shadow').css('top',2*squareDimension + 'px');
+		$('#content').css('paddingTop',240+squareDimension + 'px');		
+		addPixels();
 	}//end addSquare
 	
 	function getLocation() { // look at the GPS of the device and then call the API
@@ -106,7 +115,6 @@ var test, // DOM NodeList caches
 			dataType: 'json',
 			success: function(json) {
 				// just random for now
-				
 				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; 
 				// calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
 				desiredVenueID = desiredVenueNumber.venue.id;
@@ -120,39 +128,46 @@ var test, // DOM NodeList caches
 					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
 				});
 				console.log('desiredVenueName = ' + desiredVenueName);
-				$('#content').append('<div id="requested"><p>Hey, I\'m your Square! Great to see you, ' + userName + ' - let\'s hang out!<br /> But just so you know you gotta take me someplace first.</p><p>OO! OO! I know! I really want to go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+				$('#content').append('<div id="requested"><p>Hello ' + userName + '. Me square.<br /> Me want go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
 			}
 		});		
 				
 	}// end findNearby()
 
 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
-	test=json;
-	// console.log('jssson', json);
-	venues=[];
+		test=json;
+		// console.log('jssson', json);
+		venues=[];
 	
-	$.each(json.groups[0].items, function(){
-		// venues.push(json.groups[0].items[v].venue);
-		// console.log(json.groups[0].items);
-		// console.log(this.venue);
-		venues.push(this.venue)
-		});
+		$.each(json.groups[0].items, function(){
+			// venues.push(json.groups[0].items[v].venue);
+			// console.log(json.groups[0].items);
+			// console.log(this.venue);
+			venues.push(this.venue)
+			});
 	
 
 	
-	// console.log(venues);
-	console.log('get desired venue called'); 
-	$.ajax({
-		url: "/learn/choose/"+userId,
-		// async: false,
-		type: 'POST',
-		dataType: 'json',
-		data: $.toJSON(venues),
-		success: function(data){
-			console.log('data returned from sending venues!');
-			console.log(data);
-			}
-		});
+		// console.log(venues);
+		console.log('get desired venue called'); 
+		$.ajax({
+			url: "/learn/choose/"+userId,
+			// async: false,
+			type: 'POST',
+			dataType: 'json',
+			data: $.toJSON(venues),
+			success: function(data){
+				console.log('data returned from sending venues!');
+				//console.log(data);
+				$.each(data, function() {
+					rankedVenues.push(this[1][0]);
+					//var venueAddress = this.venue.location.address;
+					//if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+					//nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
+				});
+				console.log(Array.max(rankedVenues));
+				}
+			});
 		
 		var desiredVenueNumber = Math.floor(Math.random()*30); // for now it just calls a random from the array
 		return desiredVenueNumber;
@@ -188,11 +203,12 @@ var test, // DOM NodeList caches
 	}
 
 	function getMoreVenueOptions() {
-		$('<div id="nearby"><p class="back nav"><a id="requested">Nevermind.</a></p><p>Ok, so where would you rather go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
+		$('<div id="nearby"><p>Ok, where you want to go, Mr. Smartypants?</p></div>').hide().appendTo('#content').pause(speed).fadeIn(speed); //				
 		$('<div/>', {
 			'class': 'nearby-venues',
 			html: nearbyVenues.join('')
 		}).hide().appendTo('#content').pause(speed).fadeIn(speed);
+		$('<p class="back nav button"><a id="requested">Nevermind.</a></p>').hide().appendTo('#content').pause(speed).fadeIn(speed);
 	}
 
 	function getUserInfo() {
@@ -242,8 +258,9 @@ var test, // DOM NodeList caches
 	} // end areYouCheckedIn()
 	
 	function initActivities() {
-		var activities = "<p id='checkout' class='back nav'><a id='requested'>Ok, let\'s leave " + lastCheckInName + ".</a></p><a id='makeHappy' class='activity'> Make me happy</a><a id='makeSad' class='activity'>Make me sad</a><a id='dance' class='activity'>Let\'s dance!</a>";
+		var activities = "<p class='button'><a id='makeHappy' class='activity'> Make me happy</a></p><p class='button'><a id='makeSad' class='activity'>Make me sad</a></p><p class='button'><a id='dance' class='activity'>Let\'s dance!</a></p>";
 		$(activities).appendTo("#act").pause(speed).fadeIn(speed);
+		$("<p id='checkout' class='back nav'><a id='requested'>Ok, let\'s leave " + lastCheckInName + ".</a></p>").appendTo("#act").pause(speed).fadeIn(speed);
 	}
 	
 	function exitActivity() {
@@ -275,10 +292,10 @@ var test, // DOM NodeList caches
 		if (previousGamma != gamma || previousBeta != beta) {
 			var x = Math.round(4 * gamma);
 			var y = Math.round(4 * beta);			
-			$('#square').css('margin-left', -30 + x);
-			$('#shadow').css('margin-left', -60 + x);
-			$('#square').css('top', 60 + y);
-			$('#shadow').css('top', 140 + y);
+			$('#square').css('margin-left', -(squareDimension/2) + x);
+			$('#shadow').css('margin-left', -squareDimension + x);
+			$('#square').css('top', 100 + y);
+			$('#shadow').css('top', 2*squareDimension + y + 'px');
 		}
 		danceScore += (Math.abs(gamma) + Math.abs(beta))/10000;
 		console.log(danceScore);
@@ -306,6 +323,32 @@ var test, // DOM NodeList caches
 
 	function logActivity(points){
 		sendToServer({'type':'activity', 'points':points, 'id':checkinId});	
+	}
+	
+	function addPixels() {
+		// the idea here is to divide the square into regions based on the number of parameters that we are using
+		// and the color of each region is based on the parameters average, and the internal dimensions are determined by 
+		// the percentage change (+plus or -minus)
+		// alpha, luminosity and/or the smile (but probably the 'bounciness') is determined by the happiness score
+		// The backend will deliver:
+		// 1). The last score and average cumaltive score for each input between 0-1
+		// 2). The last score and average cumulative happiness score between 0-1
+		$('#square').css('height', squareDimension);
+		$('#square').css('width', squareDimension);
+		$('#square').css('marginTop', -squareDimension/2);
+		$('#square').css('marginLeft', -squareDimension/2);
+		for(var i=0; i<squarePixelDim; i++) {
+			for(var j=0; j<squarePixelDim; j++) {
+				var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';				
+				var pixel = '<div class="' + pixelCounter + '"></div>';
+				$('#square').append(pixel);
+				$('#square .' + pixelCounter).css('background', hue);
+				pixelCounter++;
+			}
+			
+		}
+		$('#square div').css('height',squareDimension/squarePixelDim);
+		$('#square div').css('width',squareDimension/squarePixelDim);
 	}
 
 			
