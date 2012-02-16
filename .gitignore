@@ -4,3 +4,4 @@ settings_local.py
 media/
 *.net
 *.log
+.DS_Store

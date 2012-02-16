@@ -145,7 +145,6 @@ var test, // DOM NodeList caches
 			// console.log(this.venue);
 			venues.push(this.venue)
 			});
-	
 
 	
 		// console.log(venues);

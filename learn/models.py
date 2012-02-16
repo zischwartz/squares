@@ -17,7 +17,7 @@ nHIDDEN1 = 4
 nHIDDEN2 = 3
 nOUTPUTS = 1
 
-
+# this was factored out to: common.py
 # def get_inputs(venue):
 # 	inputs = []
 # 	inputs.append(venue['stats']['checkinsCount'])
@@ -31,7 +31,9 @@ nOUTPUTS = 1
 class Net(models.Model):
 	square = models.ForeignKey(Square)
         visualization = models.TextField(default=" ")
-	def netFileName(self):
+	exists = models.BooleanField(default=False)
+
+        def netFileName(self):
 		return (settings.MEDIA_ROOT + 'nets/' + self.square.id + '.net').encode('ascii', 'ignore')
 
 	def firstTrain(self, checkin):
@@ -67,12 +69,15 @@ class Net(models.Model):
                 # self.visualization = silly.content
                                 
                 ann.save(filename)
+                self.exists = True
                 self.save()
 		# sys.stdout = old_stdout
                 # print 'after save'
 
 	def execute(self, possible_venues):
-		ann = libfann.neural_net()
+                if not self.exists:
+                    return 'The net does not exist yet, stop trying to execute it'
+                ann = libfann.neural_net()
 		filename= self.netFileName()
 		ann.create_from_file(filename)
 		processed_venues=[]

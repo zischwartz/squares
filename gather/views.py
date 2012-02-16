@@ -27,6 +27,7 @@ def newData(request):
 				userSquare= Square.objects.get(id= data['userId'])
 				newCheckin = Checkin(id= cid, square=userSquare, venueData=data['venueData'], checkinData = data['checkinData'])
 				newCheckin.save()
+                                
 				# return HttpResponse(newCheckin.get_inputs())
 			else:
 				return HttpResponse('you already checked in here')
