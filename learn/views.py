@@ -11,11 +11,15 @@ from models import *
 
 from gather.models import *
 
+# from common import get_inputs
 
 def train(request, id):
 	checkin = get_object_or_404(Checkin, id=id)
         
         checkin.square.points+=checkin.points
+        checkin.square.lastPoints=checkin.points
+        checkin.square.lastInputs = checkin.get_inputs()
+        # checkin.square.averageInputs = this one is less easy 
         checkin.square.save()
 
         net, created= Net.objects.get_or_create(square=checkin.square)
@@ -46,3 +50,12 @@ def choose(request, id):
             return  HttpResponse("Here's the text of the Web page.")
         # processed_venues= net.execute(items)
 	return HttpResponse(simplejson.dumps(processed_venues))
+
+
+def getVisData(request, id):
+    square = Square.objects.get(id=id)
+    res = {'total': square.points}
+    res['lastPoints']= square.lastPoints
+    # print square.lastInputs
+    res['lastInputs']= square.lastInputs
+    return HttpResponse(simplejson.dumps(res))

@@ -143,6 +143,7 @@ var test, // DOM NodeList caches
             console.log(rankedVenues);
             console.log('imax=', rankedVenues.imax());
             maxScore= rankedVenues.imax();
+            if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
             // and the old code added below
             desiredVenueNumber = json.response.groups[0].items[maxScore.index];
             desiredVenueNumber= {venue:desiredVenueNumber}; // the rest of this code expects it like this, le yuck

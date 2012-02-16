@@ -12,19 +12,21 @@ class Square(models.Model):
 	userName = models.CharField(max_length=255)
 	points = models.FloatField(default=0)
         
-        lastHappyScore = models.FloatField(default=0)
+        lastPoints= models.FloatField(default=0)
+        lastInputs= JSONField(default="", blank=True)
+        averageInputs= JSONField(default="", blank=True)
 
 	def __unicode__(self):
 		return self.userName +' - '+ self.id
 
-        def lastHappyScore(self):
-            return self.lastHappyScore
+        # def lastHappyScore(self):
+        #     return self.lastHappyScore
 
-        def totalHappyScore(self):
-            return self.points 
+        # def totalHappyScore(self):
+        #     return self.points 
 
-        def lastInputs(self):
-            return true
+        # def lastInputs(self):
+            # return true
 
         def averageInputs(self):
             return true

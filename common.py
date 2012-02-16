@@ -43,8 +43,8 @@ def get_inputs(venue):
         # friends here
         # number of photos    
         # categories
-        inputs.extend(cat_inputs)
         inputs = map(scale, inputs)        
+        inputs.extend(cat_inputs) # I was scaling these, but shouldn't have been
         # print inputs
         return(inputs)
 

@@ -35,7 +35,7 @@ def newData(request):
 		if data['type']=='activity':
 
 			checkin = Checkin.objects.get(id=data['id'])
-			checkin.points += int(data['points'])
+			checkin.points += float(data['points'])
 			checkin.save()
 			return HttpResponse('nice activity post yo')
 
@@ -44,7 +44,4 @@ def newData(request):
 
 	# if request.method == 'GET':
 		# return HttpResponse(settings.MEDIA_ROOT)
-
-
-
 
