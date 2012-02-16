@@ -1,5 +1,6 @@
 var test, // DOM NodeList caches
-	home = 'http://127.0.0.1:8000/',
+	// home = 'http://127.0.0.1:8000/',
+	home = '/',
 	// home = 'http://squares.fredtruman.com/',
 	introduction = 'Hey there. Welcome to the wonderfully impulsive world of Squares, where code-based organisms with agency get you to drag them around all over town in the endless pursuit of their own cryptic and selfish goals.',
 	CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
