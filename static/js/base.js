@@ -1,10 +1,12 @@
 var test, // DOM NodeList caches
 	// home = 'http://127.0.0.1:8000/',
-	home = '/',
+	home = 'http://ec2-107-20-17-34.compute-1.amazonaws.com',
 	// home = 'http://squares.fredtruman.com/',
 	introduction = 'Hey there. Welcome to the wonderfully impulsive world of Squares, where code-based organisms with agency get you to drag them around all over town in the endless pursuit of their own cryptic and selfish goals.',
-	CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
-	CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
+	// CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
+	CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
+	// CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
+	CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',
 	validateAddress = 'https://foursquare.com/oauth2/authenticate?client_id=' + CLIENTID + '&response_type=token&redirect_uri=' + home,
 	token = document.location.href, // grabs the current address and looks for access tokens
 	checkedIn = false,
