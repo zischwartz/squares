@@ -53,8 +53,8 @@ var test, // DOM NodeList caches
 
 	});
 
-	$('a#makeHappy').live('click', function(){logActivity(5)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
-	$('a#makeSad').live('click', function(){logActivity(-5)});
+	$('a#makeHappy').live('click', function(){logActivity(0.1)});//I called this 'logActivity' cuz there's probably a function for doing the activity before the score is sent to the server
+	$('a#makeSad').live('click', function(){logActivity(-0.1)});
 	$('a#dance').live('click', function(){dance()});
 	
 
@@ -106,7 +106,8 @@ var test, // DOM NodeList caches
 	}// end getLocation()
 
 	function findNearby(lat,lon) { //take the lat lon values and look for nearby venues in the foursquare API
-		var getVenues = "https://api.foursquare.com/v2/venues/explore?ll=" + lat + "," + lon + "&access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET;
+    //changed this to the search url, which caused some problems
+		var getVenues = "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lon + "&access_token=" + token[1] + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET;
 		var desiredVenueName;
 		var desiredVenueAddress;
 		$.ajax({
@@ -115,62 +116,98 @@ var test, // DOM NodeList caches
 			dataType: 'json',
 			success: function(json) {
 				// just random for now
-				var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; 
-				// calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
-				desiredVenueID = desiredVenueNumber.venue.id;
-				desiredVenueName = desiredVenueNumber.venue.name; 
-				desiredVenueAddress = desiredVenueNumber.venue.location.address;
-				if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
-				//console.log(json.response.groups[0].items);
-				$.each(json.response.groups[0].items, function() {
-					var venueAddress = this.venue.location.address;
-					if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
-					nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
-				});
-				console.log('desiredVenueName = ' + desiredVenueName);
-				$('#content').append('<div id="requested"><p>Hello ' + userName + '. Me square.<br /> Me want go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+        // NOT IF I HAVE ANYTHING TO SAY ABOUT IT -z
+				// var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; //this so isn't a "number"
+        
+        //the above can't work this way, talking to the server is async, this only works when we were faking it.
+        // so instead I'm factoring in the below
+		    venues=[];
+        $.each(json.response.groups[0].items, function(){ venues.push(this)});
+        // console.log('VVVVVVVvv', venues);
+        
+        $.ajax({
+          url: "/learn/choose/"+userId,
+          // async: false,
+          type: 'POST',
+          dataType: 'json',
+          data: $.toJSON(venues),
+          success: function(data){
+            console.log('data returned from sending venues!');
+            console.log(data);
+            $.each(data, function() {
+              rankedVenues.push(this[1]);
+              //var venueAddress = this.venue.location.address;
+              //if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+              //nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
+             });
+            console.log(rankedVenues);
+            console.log('imax=', rankedVenues.imax());
+            maxScore= rankedVenues.imax();
+            // and the old code added below
+            desiredVenueNumber = json.response.groups[0].items[maxScore.index];
+            desiredVenueNumber= {venue:desiredVenueNumber}; // the rest of this code expects it like this, le yuck
+            // calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+            desiredVenueID = desiredVenueNumber.venue.id;
+            desiredVenueName = desiredVenueNumber.venue.name; 
+            // console.log('dvn', desiredVenueNumber)
+            desiredVenueAddress = desiredVenueNumber.venue.location.address;
+            if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
+            //console.log(json.response.groups[0].items);
+            $.each(json.response.groups[0].items, function() {
+              var venueAddress = this.location.address;
+              if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+              nearbyVenues.push('<a class="checkin nearby" title="' + this.id + '"><h2>' + this.name + '</h2>' + venueAddress + '</a>'); 
+            });
+            console.log('desiredVenueName = ' + desiredVenueName);
+            $('#content').append('<div id="requested"><p>Hello ' + userName + '. Me square.<br /> Me want go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+           
+           
+            } //end /learn/choose success
+        }) //end learn choose ajax
 			}
 		});		
 				
 	}// end findNearby()
-
-	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
-		test=json;
-		// console.log('jssson', json);
-		venues=[];
-	
-		$.each(json.groups[0].items, function(){
-			// venues.push(json.groups[0].items[v].venue);
-			// console.log(json.groups[0].items);
-			// console.log(this.venue);
-			venues.push(this.venue)
-			});
-
-	
-		// console.log(venues);
-		console.log('get desired venue called'); 
-		$.ajax({
-			url: "/learn/choose/"+userId,
-			// async: false,
-			type: 'POST',
-			dataType: 'json',
-			data: $.toJSON(venues),
-			success: function(data){
-				console.log('data returned from sending venues!');
-				//console.log(data);
-				$.each(data, function() {
-					rankedVenues.push(this[1][0]);
-					//var venueAddress = this.venue.location.address;
-					//if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
-					//nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
-				});
-				console.log(Array.max(rankedVenues));
-				}
-			});
-		
-		var desiredVenueNumber = Math.floor(Math.random()*30); // for now it just calls a random from the array
-		return desiredVenueNumber;
-	}
+// 
+// 	function getDesiredVenue(json) { // this should be received from server: it crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+// 		test=json;
+// 		// console.log('jssson', json);
+// 		venues=[];
+// 	
+// 		$.each(json.groups[0].items, function(){
+// 			// venues.push(json.groups[0].items[v].venue);
+// 			// console.log(json.groups[0].items);
+// 			// console.log(this);
+// 			venues.push(this) //this was this.venue, coming from api/explore. simply this using api/search
+// 			});
+// 	
+// 		console.log(venues);
+// 		console.log('get desired venue called'); 
+// 		$.ajax({
+// 			url: "/learn/choose/"+userId,
+// 			// async: false,
+// 			type: 'POST',
+// 			dataType: 'json',
+// 			data: $.toJSON(venues),
+// 			success: function(data){
+// 				console.log('data returned from sending venues!');
+// 				console.log(data);
+// 				$.each(data, function() {
+//           rankedVenues.push(this[1]);
+//           //var venueAddress = this.venue.location.address;
+// 					//if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+// 					//nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
+//          });
+//         console.log(rankedVenues);
+// 				console.log('imax=', rankedVenues.imax());
+//         return rankedVenues.imax();
+// 				}
+// 			});
+// 
+// 				// console.log('imax=', rankedVenues.imax());
+// 		// var desiredVenueNumber = Math.floor(Math.random()*30); // for now it just calls a random from the array
+// 		// return desiredVenueNumber;
+// 	}
 	
 	function checkIN(venueID) {
 		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + token[1] + '&broadcast=public&venueId=' + venueID , function(Cdata) {
@@ -354,3 +391,15 @@ var test, // DOM NodeList caches
 $(document).ready(function() {
 	init();
 });
+
+
+Array.prototype.imax=function()
+{
+  if (this.length == 0)
+        return {'index':-1};
+    var maxIndex = 0;
+      for (var i = 1; i<this.length; i++)
+            if (this[i]>this[maxIndex]) 
+                    maxIndex = i;
+        return {'index':maxIndex, 'value':this[maxIndex]};
+}

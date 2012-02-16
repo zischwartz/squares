@@ -19,25 +19,31 @@ def scale(val):
 
 def get_inputs(venue):
 	inputs = []
+        cat_inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0]  
+
 	inputs.append(venue['stats']['checkinsCount'])
 	inputs.append(venue['hereNow']['count'])
 	inputs.append(venue['stats']['tipCount'])
-        # category converted to an input per possible cat
-        # print '-------------------------------------------------------'
-        cat_inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0]  
-        category=venue['categories'][0]['parents'][0]
+        inputs.append(int(venue['verified']))
+        try:
+            category = venue['categories'][0]['parents'][0]
+            print venue['categories'][0]['parents'][0]
+        except:
+            print 'no category for '
+            print venue
+            category= 'none'
         if category in category_list:
-            print 'it has a category'
-            # turn cat inputs at the index of category to 1 and EXTEND inputs
+            cat_inputs[category_list.index(category)]=1
+            print 'it has a category ' + category
+            print cat_inputs
+            cat_inputs.extend([0]) #represents it not NOT having a category
         else:
-            cat_inputs.extend([1])
-        # if category == 'Nightlife Spots':
-            # print 'it was a nightlife spot'
+            cat_inputs.extend([1]) # there was no category, this is the tenth option, must extend with a 0 above
         # usersCount (regulars?)
         # friends here
         # number of photos    
         # categories
-        
+        inputs.extend(cat_inputs)
         inputs = map(scale, inputs)        
         # print inputs
         return(inputs)

@@ -18,10 +18,10 @@ class Square(models.Model):
 		return self.userName +' - '+ self.id
 
         def lastHappyScore(self):
-            return true
+            return self.lastHappyScore
 
         def totalHappyScore(self):
-            return true
+            return self.points 
 
         def lastInputs(self):
             return true

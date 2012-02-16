@@ -11,8 +11,8 @@ import common
 
 from gather.models import Square, Checkin
 nLAYERS = 4
-nINPUTS = 3
-# nINPUTS = 4
+# nINPUTS = 3
+nINPUTS = 14
 nHIDDEN1 = 4
 nHIDDEN2 = 3
 nOUTPUTS = 1
@@ -37,6 +37,7 @@ class Net(models.Model):
 		return (settings.MEDIA_ROOT + 'nets/' + self.square.id + '.net').encode('ascii', 'ignore')
 
 	def firstTrain(self, checkin):
+                print 'firstTrain!'
 		# train_data = libfann.training_data()
 		ann = libfann.neural_net()
 		# ann.create_standard(nLAYERS, nINPUTS, nHIDDEN1, nHIDDEN2, nOUTPUTS)
@@ -48,7 +49,8 @@ class Net(models.Model):
 
 	def doTrain(self, checkin):
 		# train_data = libfann.training_data()
-		ann = libfann.neural_net()
+		print 'doTrain'
+                ann = libfann.neural_net()
 		filename= self.netFileName()
 		ann.create_from_file(filename)
 		ann.train(checkin.get_inputs(), [checkin.points])
@@ -75,6 +77,7 @@ class Net(models.Model):
                 # print 'after save'
 
 	def execute(self, possible_venues):
+                print 'execute!'
                 if not self.exists:
                     return 'The net does not exist yet, stop trying to execute it'
                 ann = libfann.neural_net()

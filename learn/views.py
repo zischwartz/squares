@@ -29,16 +29,20 @@ def train(request, id):
 	return HttpResponse(id)
 	
 def choose(request, id):
-	# if request.method == 'POST':
+	print 'choose'
+        # if request.method == 'POST':
 	items = simplejson.loads(request.raw_post_data)
-	# log.info("ITEMSSSS")
 	# log.info(items)
 	square = Square.objects.get(id=id)
-	# net = Net.objects.get(square=square)
-	net = get_object_or_404(Net, square= square) 
-        if net.exists:
+        try:
+            net = Net.objects.get(square=square)
+        except:
+            print 'net really did not exist'
+            return  HttpResponse(simplejson.dumps(0))
+        if net:
             processed_venues= net.execute(items)
         else:
+            print 'net did not exist yet'
             return  HttpResponse("Here's the text of the Web page.")
         # processed_venues= net.execute(items)
 	return HttpResponse(simplejson.dumps(processed_venues))
