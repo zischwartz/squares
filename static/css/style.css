@@ -1,11 +1,12 @@
-@-webkit-keyframes bounce { from { margin-top: -10px;  } to { margin-top:10px; } }
+@-webkit-keyframes bounce { from { top: 120px;  } to { top:140px; } }
 @-webkit-keyframes shadow { from { opacity:0.05; } to { opacity:0.2; } }
 
-#square {-webkit-animation-name: bounce;-webkit-animation-duration: .5s;-webkit-animation-timing-function: ease-in-out; -webkit-animation-direction: alternate; -webkit-animation-iteration-count: infinite; }
-#shadow {-webkit-animation-name: shadow;-webkit-animation-duration: .5s;-webkit-animation-timing-function: ease-in-out; -webkit-animation-direction: alternate; -webkit-animation-iteration-count: infinite; }
+.square {-webkit-animation-name: bounce;-webkit-animation-duration: .5s;-webkit-animation-timing-function: ease-in-out; -webkit-animation-direction: alternate; -webkit-animation-iteration-count: infinite; }
+.shadow {-webkit-animation-name: shadow;-webkit-animation-duration: .5s;-webkit-animation-timing-function: ease-in-out; -webkit-animation-direction: alternate; -webkit-animation-iteration-count: infinite; }
 
 
 * {
+	list-style:none;
 	margin:0;
 	padding:0;
 	text-decoration:none;
@@ -15,13 +16,14 @@ body {
 	font-size:21px;
 	font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;	
 }
-#content {
+.content {
 	width:640px;
-	padding-top:240px;
+	height:880px;
 	padding-bottom:80px;
 	overflow:hidden;
 	margin:0 auto;
 	text-align:center;
+	background:#eeeeee;
 }
 h2, h3 {
 	font-size:21px;
@@ -33,15 +35,22 @@ h2 {
 h3, p {
 	color:#666666;
 }
-#square {
+.square-container {
+	width:640px;
+	height:360px;
+	position:fixed;
+	bottom:100px;
+	background:#dddddd;	
+}
+.square {
 	display:inline-block;
-	height:60px;
-	width:60px;
+	height:120px;
+	width:120px;
 	background:#000000;
 	position:absolute;
 	left:50%;
-	top:100px;
-	margin-left:-30px;
+	bottom:120px;
+	margin-left:-60px;
 	-webkit-transition-property: x, y;
 	-webkit-transition-duration: 0.1s;
 	-webkit-transition-timing-function: linear;
@@ -49,77 +58,55 @@ h3, p {
 	-moz-transition-duration: 0.1s;
 	-moz-transition-timing-function: linear;
 }
-#square div {
+.square div {
 	float:left;
+	width:5px;
+	height:5px;
 }
-#shadow {
+.shadow {
 	height:40px;
 	width:240px;
 	position:absolute;
 	left:50%;
-	top:120px;
+	top:300px;
 	margin-left:-120px;
 	background:url(../images/shadow.png) top left no-repeat;
 	background-size:100%;
 }
-.button a {
-	padding:21px 42px;
-	background: #666666;
-	box-shadow: 2px 2px 0px #f1f1f1;
-	text-shadow: -1px -1px 0px #444444;
-	font-weight:bold;
-	color:#e5e5e5;
-	cursor:pointer;
-	width:540px;
-	display:inline-block;	
-}
-p, a.nearby {
-	margin-bottom:14px;
-}
-a.nearby p {
-	margin-bottom:0;
-}
-.nearby-venues {
-	margin-top:40px;
-}
-.button a:hover, a.nearby:hover, a.activity:hover {
-	background-color:#555555;
-}
-.back a:hover {
-	background-color:#a32b2b;
-}
-a.nearby, .button a, .nav a, a.activity {
-	-webkit-transition:background-color .2s ease-in;
-	-moz-transition:background-color .2s ease-in;
-	-o-transition:background-color .2s ease-in;
-	transition:background-color .2s ease-in;
-}	
-a.nearby, .nav a, a.activity {	
-	background: #666666;
-	box-shadow: 2px 2px 0px #f1f1f1;
-	text-shadow: -1px -1px 0px #444444;
-	color:#e5e5e5;
-	cursor:pointer;	
+.loading {
+	height:16px;
+	width:16px;
 	display:inline-block;
-	width:540px;
-	padding:21px 0px;
+	position:absolute;
+	top:180px;
+	left:50%;
+	display:none;
+	margin-left:-8px;
+	background:url(../images/loading.gif) top left no-repeat;
 }
-a.nearby *, a.activity * {
-	color:#e5e5e5;
+ul.nav {
+	font-size:24px;
+	line-height:24px;
+	height:100px;
+	position:fixed;
+	bottom:0px;
+	text-align:center;
+	width:640px;
 }
-a.nearby h2, a.activity h2 {
-	color:#ffffff;
+ul.nav li {
+	background:#fe0000;
 }
-.nav {
-
-}
-.nav a {
-
+ul.nav li a {
+	padding-top:38px;
 	display:inline-block;
-	color:#666666;	
+	background:#222222;
+	color:#eeeeee;
+	height:62px;
+	width:320px;	
+	float:left;
 }
-.back a {
-	background:#6f2c2c;
-	text-shadow: 1px 1px 0px #4e1d1d;
-	color:#ffffff;
+/*WELCOME ROUTE*/
+.welcome-container p {
+	padding:0px 48px;
+	padding-top:50%;
 }

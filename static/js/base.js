@@ -1,4 +1,292 @@
-var test, // DOM NodeList caches
+(function($) {
+	var 
+		home = 'http://127.0.0.1:8000/',
+		// home = 'http://ec2-107-20-17-34.compute-1.amazonaws.com',
+		accessToken = '', //only set this once in the AUTHORIZED ROUTE
+		CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
+		// CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
+		CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
+		// CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',		
+		validateAddress = 'https://foursquare.com/oauth2/authenticate?client_id=' + CLIENTID + '&response_type=token&redirect_uri=' + home,		
+		squareDimension = 120,
+		squarePixelDim = 10,
+		pixelCounter = 0,
+		checkInDuration = 1,
+		userName = 'userName',
+		userId ='',
+		checkinId ='', 
+		userPhoto='',
+		lastCheckInName = 'a TEST location',
+		nearbyVenues = [],
+		rankedVenues = [],
+		speed = 300,
+		previousBeta,
+		previousGamma,
+		danceScore
+		;
+	$('.square').live("click", function() {
+		console.log('click');
+	});
+	$.fn.pause = function(duration) { //calling pause on jquery events 
+		$(this).animate({ dummy: 1 }, duration);
+		return this;
+	};
+	Array.max = function( array ){
+	    return Math.max.apply( Math, array );
+	};
+	function findNearby(lat,lon) { //take the lat lon values and look for nearby venues in the foursquare API
+    //changed this to the search url, which caused some problems
+		console.log('findNearby');
+		var getVenues = "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lon + "&access_token=" + accessToken + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET;
+		var desiredVenueName;
+		var desiredVenueAddress;
+		$.ajax({
+			url: getVenues,
+			async: false,
+			dataType: 'json',
+			success: function(json) {
+				// var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; //this so isn't a "number"
+        
+		        //the above can't work this way, talking to the server is async, this only works when we were faking it.
+		        // so instead I'm factoring in the below
+			    venues=[];
+		        $.each(json.response.groups[0].items, function(){ venues.push(this)});
+		        //console.log('VVVVVVVvv', venues);
+        		console.log('userId = ' + userId);
+		        $.ajax({
+		          url: "/learn/choose/"+userId,
+		          // async: false,
+		          type: 'POST',
+		          dataType: 'json',
+		          data: $.toJSON(venues),
+		          success: function(data){
+		            console.log('data returned from sending venues!');
+		            console.log(data);
+		            $.each(data, function() {
+		              rankedVenues.push(this[1]);
+		              //var venueAddress = this.venue.location.address;
+		              //if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+		              //nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
+		             });
+		            console.log(rankedVenues);
+		            console.log('imax=', rankedVenues.imax());
+		            maxScore= rankedVenues.imax();
+		            if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
+		            // and the old code added below
+		            desiredVenueNumber = json.response.groups[0].items[maxScore.index];
+		            desiredVenueNumber= {venue:desiredVenueNumber}; // the rest of this code expects it like this, le yuck
+		            // calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+		            desiredVenueID = desiredVenueNumber.venue.id;
+		            desiredVenueName = desiredVenueNumber.venue.name; 
+		            // console.log('dvn', desiredVenueNumber)
+		            desiredVenueAddress = desiredVenueNumber.venue.location.address;
+		            if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
+		            //console.log(json.response.groups[0].items);
+		            $.each(json.response.groups[0].items, function() {
+		              var venueAddress = this.location.address;
+		              if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+		              nearbyVenues.push('<a class="checkin nearby" title="' + this.id + '"><h2>' + this.name + '</h2>' + venueAddress + '</a>'); 
+		            });
+		            console.log('desiredVenueName = ' + desiredVenueName);
+		            //$('#content').append('<div id="requested"><p>Hello ' + userName + '. Me square.<br /> Me want go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
+           
+           
+		            } //end /learn/choose success
+		        }) //end learn choose ajax
+			}
+		});		
+				
+	}// end findNearby()
+	function getLocation() { // look at the GPS of the device and then call the API
+		console.log('getLocation()');
+		navigator.geolocation.getCurrentPosition(function(loc){
+			var lat = loc.coords.latitude;
+			var lon = loc.coords.longitude;
+			findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
+		});
+	}// end getLocation()
+	function areYouCheckedIn() { // pretty straight forward - returns false if your last check in was over 2 hours ago, or true if it was less than 2 hours ago
+		console.log('areYouCheckedIn');
+		var getCheckins = "https://api.foursquare.com/v2/users/self/checkins?oauth_token=" + accessToken;
+		var currentTime = Math.round(new Date().getTime() / 1000);
+		var elapsedTime = 0; // time between now and your last check-in			
+		var lastCheckInTime = 0; // time of your last check-in
+		$.ajax({
+			url: getCheckins,
+			async: false,
+			dataType: 'json',
+			success: function(json) {
+				try{ // what's this? Fred would like to know more about 'try' and catch(err)
+					lastCheckInName = json.response.checkins.items[0].venue.name;
+					lastCheckInTime = json.response.checkins.items[0].createdAt; // 
+					elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes	
+					checkinId = json.response.checkins.items[0].id;
+					}
+				catch(err)
+				{
+					console.log(err);
+					elapsedTime = 10000;
+				}
+			}
+		});
+		if(elapsedTime < checkInDuration) {
+			return true;
+		} else {
+			return false;
+		}
+	} // end areYouCheckedIn()
+	//for our server	
+	function sendToServer(data){
+		console.log('sendToServer()');
+		$.ajax({
+			url:'/data/',
+			data: $.toJSON(data),
+			type: 'POST',
+			dataType: 'json'
+		});
+	} //end sendToServer
+	function getUserInfo() {
+		console.log('getUserInfo');
+		var getInfo = 'https://api.foursquare.com/v2/users/self?oauth_token=' + accessToken;
+		$.ajax({
+			url: getInfo,
+			async: false,
+			dataType: 'json',
+			success: function(json) {
+				userName = json.response.user.firstName;
+				userId = json.response.user.id;
+				userPhoto = json.response.user.photo; 
+				sendToServer({type: 'user', 'userName': userName, 'userId':userId});
+				console.log("userId = "+userId);
+			}
+		});
+	}
+	function addPixels() {
+		console.log('addPixels');
+		// the idea here is to divide the square into regions based on the number of parameters that we are using
+		// and the color of each region is based on the parameters average, and the internal dimensions are determined by 
+		// the percentage change (+plus or -minus)
+		// alpha, luminosity and/or the smile (but probably the 'bounciness') is determined by the happiness score
+		// The backend will deliver:
+		// 1). The last score and average cumaltive score for each input between 0-1
+		// 2). The last score and average cumulative happiness score between 0-1
+		for(var i=0; i<squarePixelDim; i++) {
+			for(var j=0; j<squarePixelDim; j++) {
+				var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';				
+				var pixel = '<div class="' + pixelCounter + '"></div>';
+				$('.square').append(pixel);
+				$('.square .' + pixelCounter).css('background', hue);
+				pixelCounter++;
+			}
+			
+		}
+		$('.square div').css('height',squareDimension/squarePixelDim);
+		$('.square div').css('width',squareDimension/squarePixelDim);
+	}
+	//this sets up routing with SAMMY.JS
+    var squares = $.sammy('.content', function() {
+        this.use('Template'); //we're using Sammy templates
+        this.use('Session');
+		//I'm pretty sure this is called on all routes(?)	
+        this.around(function(callback) {
+			var context = this;
+			context.app.clearTemplateCache();
+            this.load('static/data/content.json',{cache: false})
+                    .then(function(items) {
+                        context.items = items;
+                    })
+			.then(callback);					
+        });
+	//WELCOME ROUTE, i.e. you do not have an OAUTH token from foursquare yet
+        this.get('#/', function(context) {
+			context.app.swap('');
+			//render the welcome screen
+			$('.loading').show();
+			context.render('static/templates/welcome.template', {
+				welcomeText : context.items[0].welcomeText
+			}).then(function(element){
+				$('.loading').hide();
+				$(element).appendTo(context.$element());				
+			});
+        });
+	//AUTHORIZED REDIRECT ROUTE, this is the url we get after getting an OAUTH token from foursquare
+		//once we have it, we need to redirect to /suggest/ to render venues suggestions
+		this.get(/#access_token=[0-9A-Z]{48}$/, function() {
+	        //grab the access token and set accessToken, then redirect to SUGGEST ROUTE
+			accessToken = (window.location.href).split('=')[1];
+			getUserInfo();
+			$('.loading').show();
+			if(areYouCheckedIn() != true) {
+				console.log('you need to check in');
+				getLocation();
+				window.location.replace(home + '#access_token=' + accessToken + '/suggest');
+			} else {
+				console.log('you\'re checked in already');
+				window.location.replace(home + '#access_token=' + accessToken + '/activities');
+			}
+		});
+	//SUGGEST ROUTE,
+		this.get(/#access_token=[0-9A-Z]{48}\/suggest/, function(context) {
+			//if a user tries to get into the app by hitting a back button
+			//or from their cache and the access token hasn't been verified
+			//i.e. if accessToken is an empty string
+			//then we need to redirect them through the AUTHORIZED ROUTE
+			//Repeat this for other routes!
+			var tempToken = ((window.location.href).split('=')[1]).split('/')[0];
+			if(accessToken === '') {
+				//find the window.location and get everything between '=' and '/'
+				//this is the accessToken. I know this seems redundant
+				$('.loading').show();
+				window.location.replace(home + '#access_token=' + tempToken);
+			} else {
+				console.log("the token is cool");
+				var context = this;
+				context.app.swap('');
+				//render the square
+				context.render('static/templates/suggest.template', {
+					//load in any data parsed from the API here
+					homeText : context.items[0].homeText
+					//squareURL : home + '#access_token=' + tempToken + '/suggest'
+				}).then(function(element){
+					$('.loading').hide();
+					$(element).appendTo(context.$element()); //add it to the screen
+					addPixels();
+				});
+				//context.render('static/templates/home.template', {}).appendTo(context.$element());
+			}
+        });
+	//ACTIVITIES ROUTE
+		this.get(/#access_token=[0-9A-Z]{48}\/activities/, function(context) {
+			//do we need to redirect them through the AUTHORIZED ROUTE?
+			if(accessToken === '') {
+				var tempToken = ((window.location.href).split('=')[1]).split('/')[0];
+				$('.loading').show();
+				window.location.replace(home + '#access_token=' + tempToken);
+			} else if(!areYouCheckedIn()) {
+				console.log('you need to check in before we do activities');
+				window.location.replace(home + '#access_token=' + tempToken + '/suggest');
+			} else {
+				var context = this;
+				context.app.swap('');
+				context.render('static/templates/activities.template', {
+					//load in any data parsed from the API here
+				}).then(function(element){
+					$('.loading').hide();
+					$(element).appendTo(context.$element()); //add it to the screen
+					addPixels();
+				});
+				getUserInfo();
+			}
+        });
+				
+		
+    });
+    $(function() {
+        squares.run('#/');
+    });
+})(jQuery);
+
+/*var test, // DOM NodeList caches
 	home = 'http://127.0.0.1:8000/',
 	// home = 'http://ec2-107-20-17-34.compute-1.amazonaws.com',
 	introduction = 'Hey there. Welcome to the wonderfully impulsive world of Squares, where code-based organisms with agency get you to drag them around all over town in the endless pursuit of their own cryptic and selfish goals.',
@@ -406,3 +694,4 @@ Array.prototype.imax=function()
                     maxIndex = i;
         return {'index':maxIndex, 'value':this[maxIndex]};
 }
+*/
