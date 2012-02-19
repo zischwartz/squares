@@ -13,6 +13,7 @@
 		pixelCounter = 0,
 		checkInDuration = 1,
 		userName = 'userName',
+		checkedIn = false,
 		userId ='',
 		checkinId ='', 
 		userPhoto='',
@@ -20,9 +21,13 @@
 		nearbyVenues = [],
 		rankedVenues = [],
 		speed = 300,
-		previousBeta,
-		previousGamma,
-		danceScore
+		previousBeta = 0,
+		previousGamma = 0,
+		danceScore = 0,
+		desiredVenue,
+		desiredVenueName,
+		desiredVenueAddress,
+		desiredVenueID
 		;
 	$('.square').live("click", function() {
 		console.log('click');
@@ -34,119 +39,170 @@
 	Array.max = function( array ){
 	    return Math.max.apply( Math, array );
 	};
+	Array.prototype.imax = function() {
+	  if (this.length == 0)
+	        return {'index':-1};
+	    var maxIndex = 0;
+	      for (var i = 1; i<this.length; i++)
+	            if (this[i]>this[maxIndex]) 
+	                    maxIndex = i;
+	        return {'index':maxIndex, 'value':this[maxIndex]};
+	}
+	$("a.checkin").live("click", function(){
+		$('.loading').show();
+		checkIN($(this).attr('title'));
+	});
+	$("a.target-more_options").live("click", function(){
+		window.location.replace(home + '#access_token=' + accessToken + '/more_options');
+	});
+	$("a.target-suggest").live("click", function(){
+		window.location.replace(home + '#access_token=' + accessToken + '/suggest');
+	});
+	//NEED TO FIGURE OUT HOW CHECKOUT WORKS WITH REPOPULATING INFO
+	$("a.target-check_out").live("click", function(){
+		checkOut();
+	});
+	function checkOut() {
+		//send stuff to zach's url
+		console.log('you checked out!');
+		$.ajax({
+			type: 'GET',
+			url: "/learn/train/"+checkinId,
+		});
+		checkedIn = false;
+		getLocation();
+	}
+	function checkIN(venueID) {
+		$('.loading').show();
+		console.log('lastCheckInName at top of checkIn = ' + lastCheckInName);
+		$.post('https://api.foursquare.com/v2/checkins/add?oauth_token=' + accessToken + '&broadcast=public&venueId=' + venueID , function(Cdata) {
+			console.log('checkin', Cdata);
+			$.get('https://api.foursquare.com/v2/venues/'+ venueID+ "?access_token=" + accessToken + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET, function(Vdata){
+				console.log('CHECKING IN');
+				// alert('Venue Data Loaded');	
+				sendToServer({type: 'checkin', 'userName': userName, 'userId':userId, 'checkinData': Cdata.response.checkin, 'venueData': Vdata.response.venue });
+				checkinId = Cdata.response.checkin.id;
+				lastCheckInName = Cdata.response.checkin.venue.name;
+				checkedIn = true;
+				getLocation();
+				}			
+			);
+			console.log('accessToken at bottom of checkIn = ' + accessToken);
+			$('.loading').hide();
+			window.location.replace(home + '#access_token=' + accessToken + '/activities');
+		});
+	}
 	function findNearby(lat,lon) { //take the lat lon values and look for nearby venues in the foursquare API
     //changed this to the search url, which caused some problems
-		console.log('findNearby');
+		$('.loading').show();
 		var getVenues = "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lon + "&access_token=" + accessToken + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET;
-		var desiredVenueName;
-		var desiredVenueAddress;
+			
 		$.ajax({
 			url: getVenues,
 			async: false,
 			dataType: 'json',
 			success: function(json) {
 				// var desiredVenueNumber = json.response.groups[0].items[getDesiredVenue(json.response)]; //this so isn't a "number"
-        
-		        //the above can't work this way, talking to the server is async, this only works when we were faking it.
-		        // so instead I'm factoring in the below
-			    venues=[];
-		        $.each(json.response.groups[0].items, function(){ venues.push(this)});
-		        //console.log('VVVVVVVvv', venues);
-        		console.log('userId = ' + userId);
-		        $.ajax({
-		          url: "/learn/choose/"+userId,
-		          // async: false,
-		          type: 'POST',
-		          dataType: 'json',
-		          data: $.toJSON(venues),
-		          success: function(data){
-		            console.log('data returned from sending venues!');
-		            console.log(data);
-		            $.each(data, function() {
-		              rankedVenues.push(this[1]);
-		              //var venueAddress = this.venue.location.address;
-		              //if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
-		              //nearbyVenues.push('<a class="checkin nearby" title="' + this.venue.id + '"><h2>' + this.venue.name + '</h2>' + venueAddress + '</a>'); 
-		             });
-		            console.log(rankedVenues);
-		            console.log('imax=', rankedVenues.imax());
-		            maxScore= rankedVenues.imax();
-		            if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
-		            // and the old code added below
-		            desiredVenueNumber = json.response.groups[0].items[maxScore.index];
-		            desiredVenueNumber= {venue:desiredVenueNumber}; // the rest of this code expects it like this, le yuck
-		            // calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
-		            desiredVenueID = desiredVenueNumber.venue.id;
-		            desiredVenueName = desiredVenueNumber.venue.name; 
-		            // console.log('dvn', desiredVenueNumber)
-		            desiredVenueAddress = desiredVenueNumber.venue.location.address;
-		            if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
-		            //console.log(json.response.groups[0].items);
-		            $.each(json.response.groups[0].items, function() {
-		              var venueAddress = this.location.address;
-		              if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
-		              nearbyVenues.push('<a class="checkin nearby" title="' + this.id + '"><h2>' + this.name + '</h2>' + venueAddress + '</a>'); 
-		            });
-		            console.log('desiredVenueName = ' + desiredVenueName);
-		            //$('#content').append('<div id="requested"><p>Hello ' + userName + '. Me square.<br /> Me want go to <strong>' + desiredVenueName + desiredVenueAddress + '<strong></p><p class="button"><a class="checkin" title="' + desiredVenueID + '">Ok, we\'re here at ' + desiredVenueName + '</a></p><p id="more-options" class="button"><a>Nah, let\'s look for other options.</a></p></div>'); //
-           
-           
-		            } //end /learn/choose success
-		        }) //end learn choose ajax
+				//the above can't work this way, talking to the server is async, this only works when we were faking it.
+				// so instead I'm factoring in the below
+				venues=[];
+				$.each(json.response.groups[0].items, function(){ venues.push(this)});
+				//console.log('VVVVVVVvv', venues);
+				$.ajax({
+					url: "/learn/choose/"+userId,
+					// async: false,
+					type: 'POST',
+					dataType: 'json',
+					data: $.toJSON(venues),
+					success: function(data){
+						//console.log(data);
+						$.each(data, function() {
+							rankedVenues.push(this[1]);
+						});
+						maxScore= rankedVenues.imax();
+						if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
+						// and the old code added below
+						desiredVenueNumber = json.response.groups[0].items[maxScore.index];
+						desiredVenueNumber= {venue:desiredVenueNumber}; // the rest of this code expects it like this, le yuck
+						// calls a function that crunches the venues' attributes in the neural net and returns optimal venue from array of 30 nearby venues
+						desiredVenueID = desiredVenueNumber.venue.id;
+						desiredVenueName = desiredVenueNumber.venue.name; 
+						desiredVenueAddress = desiredVenueNumber.venue.location.address;
+						if (desiredVenueAddress!=undefined) {desiredVenueAddress= ', at ' + desiredVenueAddress;}else{desiredVenueAddress=' ';}
+						$.each(json.response.groups[0].items, function() {
+							var venueAddress = this.location.address;
+							if (venueAddress!=undefined) {venueAddress='<h3>' + venueAddress + '</h3>';}else{venueAddress='';}
+							nearbyVenues.push('<a class="checkin nearby" title="' + this.id + '"><h2>' + this.name + '</h2>' + venueAddress + '</a>'); 
+						});
+					} //end /learn/choose success
+				}) //end learn choose ajax
 			}
-		});		
-				
+		});
+		$('.loading').hide();		
+		window.location.replace(home + '#access_token=' + accessToken + '/suggest');
 	}// end findNearby()
 	function getLocation() { // look at the GPS of the device and then call the API
-		console.log('getLocation()');
+		$('.loading').show();
 		navigator.geolocation.getCurrentPosition(function(loc){
-			var lat = loc.coords.latitude;
-			var lon = loc.coords.longitude;
-			findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
+			var lat = loc.coords.latitude,
+				lon = loc.coords.longitude;
+				if ( checkedIn != true) {
+					$('.loading').hide();
+					findNearby(lat,lon); // take the lat lon values and look for nearby venues in the foursquare API
+				} else {
+					//go to activities
+					window.location.replace(home + '#access_token=' + accessToken + '/activities');
+				}
 		});
 	}// end getLocation()
 	function areYouCheckedIn() { // pretty straight forward - returns false if your last check in was over 2 hours ago, or true if it was less than 2 hours ago
-		console.log('areYouCheckedIn');
-		var getCheckins = "https://api.foursquare.com/v2/users/self/checkins?oauth_token=" + accessToken;
-		var currentTime = Math.round(new Date().getTime() / 1000);
-		var elapsedTime = 0; // time between now and your last check-in			
-		var lastCheckInTime = 0; // time of your last check-in
+		$('.loading').show();
+		var getCheckins = "https://api.foursquare.com/v2/users/self/checkins?oauth_token=" + accessToken,
+			currentTime = Math.round(new Date().getTime() / 1000),
+			elapsedTime = 0, // time between now and your last check-in			
+			lastCheckInTime = 0; // time of your last check-in
 		$.ajax({
 			url: getCheckins,
 			async: false,
 			dataType: 'json',
 			success: function(json) {
+				console.log(json);
 				try{ // what's this? Fred would like to know more about 'try' and catch(err)
 					lastCheckInName = json.response.checkins.items[0].venue.name;
+					console.log('lastCheckInName = ' + lastCheckInName);
 					lastCheckInTime = json.response.checkins.items[0].createdAt; // 
 					elapsedTime = (currentTime - lastCheckInTime) / 60; // in minutes	
 					checkinId = json.response.checkins.items[0].id;
 					}
 				catch(err)
 				{
-					console.log(err);
 					elapsedTime = 10000;
 				}
 			}
 		});
 		if(elapsedTime < checkInDuration) {
-			return true;
+			checkedIn = true;
 		} else {
-			return false;
+			checkedIn = false;
 		}
+		$('.loading').hide();
 	} // end areYouCheckedIn()
 	//for our server	
 	function sendToServer(data){
-		console.log('sendToServer()');
+		$('.loading').show();
 		$.ajax({
 			url:'/data/',
 			data: $.toJSON(data),
 			type: 'POST',
-			dataType: 'json'
+			dataType: 'json',
+			success: function(json) {
+				$('.loading').hide();
+				console.log('send to server success');
+			}
 		});
-	} //end sendToServer
+	}//end sendToServer
 	function getUserInfo() {
-		console.log('getUserInfo');
+		$('.loading').show();
 		var getInfo = 'https://api.foursquare.com/v2/users/self?oauth_token=' + accessToken;
 		$.ajax({
 			url: getInfo,
@@ -157,12 +213,12 @@
 				userId = json.response.user.id;
 				userPhoto = json.response.user.photo; 
 				sendToServer({type: 'user', 'userName': userName, 'userId':userId});
-				console.log("userId = "+userId);
+				console.log('userId = ' + userId);
 			}
 		});
+		$('.loading').hide();
 	}
 	function addPixels() {
-		console.log('addPixels');
 		// the idea here is to divide the square into regions based on the number of parameters that we are using
 		// and the color of each region is based on the parameters average, and the internal dimensions are determined by 
 		// the percentage change (+plus or -minus)
@@ -170,10 +226,13 @@
 		// The backend will deliver:
 		// 1). The last score and average cumaltive score for each input between 0-1
 		// 2). The last score and average cumulative happiness score between 0-1
+		//
+		// The NEW idea is to map the weights in the neural net to the pixels
+		$('.loading').show();
 		for(var i=0; i<squarePixelDim; i++) {
 			for(var j=0; j<squarePixelDim; j++) {
-				var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';				
-				var pixel = '<div class="' + pixelCounter + '"></div>';
+				var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')',				
+					pixel = '<div class="' + pixelCounter + '"></div>';
 				$('.square').append(pixel);
 				$('.square .' + pixelCounter).css('background', hue);
 				pixelCounter++;
@@ -182,12 +241,12 @@
 		}
 		$('.square div').css('height',squareDimension/squarePixelDim);
 		$('.square div').css('width',squareDimension/squarePixelDim);
+		$('.loading').hide();
 	}
 	//this sets up routing with SAMMY.JS
     var squares = $.sammy('.content', function() {
         this.use('Template'); //we're using Sammy templates
         this.use('Session');
-		//I'm pretty sure this is called on all routes(?)	
         this.around(function(callback) {
 			var context = this;
 			context.app.clearTemplateCache();
@@ -199,9 +258,9 @@
         });
 	//WELCOME ROUTE, i.e. you do not have an OAUTH token from foursquare yet
         this.get('#/', function(context) {
+			$('.loading').show();
 			context.app.swap('');
 			//render the welcome screen
-			$('.loading').show();
 			context.render('static/templates/welcome.template', {
 				welcomeText : context.items[0].welcomeText
 			}).then(function(element){
@@ -213,17 +272,17 @@
 		//once we have it, we need to redirect to /suggest/ to render venues suggestions
 		this.get(/#access_token=[0-9A-Z]{48}$/, function() {
 	        //grab the access token and set accessToken, then redirect to SUGGEST ROUTE
+			$('.loading').show();
 			accessToken = (window.location.href).split('=')[1];
 			getUserInfo();
-			$('.loading').show();
-			if(areYouCheckedIn() != true) {
-				console.log('you need to check in');
-				getLocation();
+			areYouCheckedIn();
+			getLocation();
+			/*console.log('checkedIn = ' + checkedIn);
+			if(checkedIn != true) {
 				window.location.replace(home + '#access_token=' + accessToken + '/suggest');
 			} else {
-				console.log('you\'re checked in already');
 				window.location.replace(home + '#access_token=' + accessToken + '/activities');
-			}
+			}*/
 		});
 	//SUGGEST ROUTE,
 		this.get(/#access_token=[0-9A-Z]{48}\/suggest/, function(context) {
@@ -232,53 +291,76 @@
 			//i.e. if accessToken is an empty string
 			//then we need to redirect them through the AUTHORIZED ROUTE
 			//Repeat this for other routes!
+			$('.loading').show();
 			var tempToken = ((window.location.href).split('=')[1]).split('/')[0];
 			if(accessToken === '') {
 				//find the window.location and get everything between '=' and '/'
 				//this is the accessToken. I know this seems redundant
-				$('.loading').show();
 				window.location.replace(home + '#access_token=' + tempToken);
 			} else {
-				console.log("the token is cool");
 				var context = this;
 				context.app.swap('');
-				//render the square
 				context.render('static/templates/suggest.template', {
 					//load in any data parsed from the API here
-					homeText : context.items[0].homeText
+					homeText : context.items[0].homeText,
+					venueName : desiredVenueName,
+					venueAddress : desiredVenueAddress,
+					venueID : desiredVenueID
 					//squareURL : home + '#access_token=' + tempToken + '/suggest'
 				}).then(function(element){
 					$('.loading').hide();
 					$(element).appendTo(context.$element()); //add it to the screen
 					addPixels();
 				});
-				//context.render('static/templates/home.template', {}).appendTo(context.$element());
 			}
         });
 	//ACTIVITIES ROUTE
 		this.get(/#access_token=[0-9A-Z]{48}\/activities/, function(context) {
 			//do we need to redirect them through the AUTHORIZED ROUTE?
+			//console.log('accessToken = ' + accessToken);
+			$('.loading').show();
+			var tempToken = ((window.location.href).split('=')[1]).split('/')[0];
 			if(accessToken === '') {
-				var tempToken = ((window.location.href).split('=')[1]).split('/')[0];
-				$('.loading').show();
+				//find the window.location and get everything between '=' and '/'
+				//this is the accessToken. I know this seems redundant
 				window.location.replace(home + '#access_token=' + tempToken);
-			} else if(!areYouCheckedIn()) {
-				console.log('you need to check in before we do activities');
-				window.location.replace(home + '#access_token=' + tempToken + '/suggest');
-			} else {
+			} else {		
 				var context = this;
 				context.app.swap('');
 				context.render('static/templates/activities.template', {
 					//load in any data parsed from the API here
+					venueName : lastCheckInName
 				}).then(function(element){
 					$('.loading').hide();
 					$(element).appendTo(context.$element()); //add it to the screen
 					addPixels();
 				});
-				getUserInfo();
 			}
         });
-				
+	//MORE_OPTIONS ROUTE
+		this.get(/#access_token=[0-9A-Z]{48}\/more_options/, function(context) {
+			//do we need to redirect them through the AUTHORIZED ROUTE?
+			//console.log('accessToken = ' + accessToken);
+			$('.loading').show();
+			var tempToken = ((window.location.href).split('=')[1]).split('/')[0];
+			if(accessToken === '') {
+				//find the window.location and get everything between '=' and '/'
+				//this is the accessToken. I know this seems redundant
+				window.location.replace(home + '#access_token=' + tempToken);
+			} else {		
+				var context = this;
+				context.app.swap('');
+				context.render('static/templates/more_options.template', {
+					//load in any data parsed from the API here
+					venueName : desiredVenueName,
+					userName : userName
+				}).then(function(element){
+					$('.loading').hide();
+					$(element).appendTo(context.$element()); //add it to the screen
+					addPixels();
+				});
+			}
+        });
 		
     });
     $(function() {

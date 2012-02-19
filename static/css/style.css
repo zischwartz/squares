@@ -1,5 +1,21 @@
 @-webkit-keyframes bounce { from { top: 120px;  } to { top:140px; } }
 @-webkit-keyframes shadow { from { opacity:0.05; } to { opacity:0.2; } }
+@-webkit-keyframes spin {
+0% { -webkit-transform: rotate(0deg);}
+100% { -webkit-transform: rotate(360deg);}
+}
+@-moz-keyframes spin {
+0% { -moz-transform: rotate(0deg);}
+100% { -moz-transform: rotate(360deg);}
+}
+@-o-keyframes spin {
+0% { -o-transform: rotate(0deg);}
+100% { -o-transform: rotate(360deg);}
+}
+@-ms-keyframes spin {
+0% { -ms-transform: rotate(0deg);}
+100% { -ms-transform: rotate(360deg);}
+}
 
 .square {-webkit-animation-name: bounce;-webkit-animation-duration: .5s;-webkit-animation-timing-function: ease-in-out; -webkit-animation-direction: alternate; -webkit-animation-iteration-count: infinite; }
 .shadow {-webkit-animation-name: shadow;-webkit-animation-duration: .5s;-webkit-animation-timing-function: ease-in-out; -webkit-animation-direction: alternate; -webkit-animation-iteration-count: infinite; }
@@ -11,19 +27,19 @@
 	padding:0;
 	text-decoration:none;
 }
+html, body {
+	height:100%;
+}
 body {
-	background:#ffffff;
+	background:#f6f6f6;
 	font-size:21px;
 	font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;	
 }
 .content {
 	width:640px;
-	height:880px;
-	padding-bottom:80px;
-	overflow:hidden;
+	padding:0px 0px 90px 0px;
 	margin:0 auto;
 	text-align:center;
-	background:#eeeeee;
 }
 h2, h3 {
 	font-size:21px;
@@ -38,9 +54,7 @@ h3, p {
 .square-container {
 	width:640px;
 	height:360px;
-	position:fixed;
-	bottom:100px;
-	background:#dddddd;	
+	position:absolute;
 }
 .square {
 	display:inline-block;
@@ -49,7 +63,6 @@ h3, p {
 	background:#000000;
 	position:absolute;
 	left:50%;
-	bottom:120px;
 	margin-left:-60px;
 	-webkit-transition-property: x, y;
 	-webkit-transition-duration: 0.1s;
@@ -74,39 +87,68 @@ h3, p {
 	background-size:100%;
 }
 .loading {
-	height:16px;
-	width:16px;
+	height:28px;
+	width:28px;
 	display:inline-block;
-	position:absolute;
-	top:180px;
+	position:fixed;
+	top:300px;
 	left:50%;
 	display:none;
-	margin-left:-8px;
-	background:url(../images/loading.gif) top left no-repeat;
+	margin-left:-14px;
+	margin-top:-14px;
+	background:url(../images/loading.png) top left no-repeat;
+	-webkit-animation: spin 0.7s infinite linear;
+	-moz-animation: spin 0.7s infinite linear;
+	-o-animation: spin 0.7s infinite linear;
+	-ms-animation: spin 0.7s infinite linear;
 }
-ul.nav {
-	font-size:24px;
-	line-height:24px;
-	height:100px;
-	position:fixed;
-	bottom:0px;
-	text-align:center;
+.square-speak {
+	padding-bottom:11px;
+	background: transparent url(../images/speech-arrow.png) bottom center no-repeat;
+}
+.square-speak .inner {
+	padding:40px;
+	background:#ffffff;
+	-moz-border-radius-bottomright: 40px;
+	border-bottom-right-radius: 40px;
+	-moz-border-radius-bottomleft: 40px;
+	border-bottom-left-radius: 40px;
+}
+.user-speak {
 	width:640px;
+	position:fixed;
+	bottom:0;
+	left:50%;
+	margin-left:-320px;
+	-moz-border-radius-topright: 40px;
+	border-top-right-radius: 40px;
+	-moz-border-radius-topleft: 40px;
+	border-top-left-radius: 40px;
 }
-ul.nav li {
-	background:#fe0000;
+.user-speak .option {
+	padding:40px;	
+	background-image: linear-gradient(bottom, rgb(137,137,137) 22%, rgb(153,153,153) 81%);
+	background-image: -o-linear-gradient(bottom, rgb(137,137,137) 22%, rgb(153,153,153) 81%);
+	background-image: -moz-linear-gradient(bottom, rgb(137,137,137) 22%, rgb(153,153,153) 81%);
+	background-image: -webkit-linear-gradient(bottom, rgb(137,137,137) 22%, rgb(153,153,153) 81%);
+	background-image: -ms-linear-gradient(bottom, rgb(137,137,137) 22%, rgb(153,153,153) 81%);
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.22, rgb(137,137,137)),
+		color-stop(0.81, rgb(153,153,153))
+	);
 }
-ul.nav li a {
-	padding-top:38px;
-	display:inline-block;
-	background:#222222;
-	color:#eeeeee;
-	height:62px;
-	width:320px;	
-	float:left;
+.user-speak * {
+	color:#444444;
+	cursor:pointer;
+}
+.options {
+	margin-top:360px;
 }
 /*WELCOME ROUTE*/
-.welcome-container p {
+.welcome p {
 	padding:0px 48px;
 	padding-top:50%;
 }
