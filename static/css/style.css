@@ -26,7 +26,7 @@ body {
 	font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;	
 }
 .header {
-	background:#222222;
+	background:#222222 url(../images/dark_matter.png) top left;
 	height:21px;
 	padding:1px 0px 3px 0px;
 	text-align:center;
@@ -227,7 +227,35 @@ a.checkin-confirm {
 	);
 }
 /*WELCOME ROUTE*/
+.welcome {
+	position:absolute;
+	width:560px;
+	padding:64px 40px 40px 40px;
+	top:40%;
+	left:50%;
+	margin-left:-320px;
+	-moz-border-radius: 40px;
+	border-radius: 40px;
+	background:#ffffff;
+}
+.welcome-overlay {
+	background:#eeeeee url(../images/dark_matter.png) top left;
+	height:100%;
+	width:100%;
+	position:fixed;
+	top:0;
+	left:0;
+}
 .welcome p {
-	padding:0px 48px;
-	padding-top:50%;
+	margin-bottom:24px;
+	line-height:24px;
+	font-size:24px;
+}
+p a.foursquare {
+	height:24px;
+	width:180px;
+	display:inline-block;
+	text-indent:999em;
+	overflow:hidden;
+	background: url(../images/signinwith-foursquare.png) top left no-repeat;
 }

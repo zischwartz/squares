@@ -28,6 +28,7 @@
 		desiredVenueAddress,
 		desiredVenueID
 		;
+		
 		$.lastCheckInName = 'a TEST location';
 		
 	$('.square').live("click", function() {
