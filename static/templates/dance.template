@@ -1,0 +1,18 @@
+<div class="activities">
+	<div class="square-speak">
+		<div class="inner">
+			<p>Bust a move, <%= userName %>!</p>
+		</div>
+		<div class="speech-arrow"></div>
+	</div>
+
+	<div class="square-container">
+		<div class="square"></div>
+		<div class="shadow"></div>
+	</div>
+
+
+	<div class="user-speak">	
+		<p class="option"><a class="stop-dancing" title="">Ok, we&#8217;re done dancing you silly Square.</a></p>
+	</div><!--END .suggest-->
+</div>
