@@ -19,18 +19,6 @@ class Square(models.Model):
 	def __unicode__(self):
 		return self.userName +' - '+ self.id
 
-        # def lastHappyScore(self):
-        #     return self.lastHappyScore
-
-        # def totalHappyScore(self):
-        #     return self.points 
-
-        # def lastInputs(self):
-            # return true
-
-        def averageInputs(self):
-            return true
-
         #send vis stuff, based on each input, averaged, maybe weighted by how much fun it had
         # average of tipCount, and if it went up or down at the last checkin
         #alpha/lum for sadness?

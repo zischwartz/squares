@@ -54,8 +54,10 @@ def choose(request, id):
 
 def getVisData(request, id):
     square = Square.objects.get(id=id)
+    net = Net.objects.get(square=square)
     res = {'total': square.points}
     res['lastPoints']= square.lastPoints
     # print square.lastInputs
     res['lastInputs']= square.lastInputs
+    res['net']=net.visualization 
     return HttpResponse(simplejson.dumps(res))
