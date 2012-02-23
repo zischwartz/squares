@@ -14,7 +14,7 @@ class Square(models.Model):
         
         lastPoints= models.FloatField(default=0)
         lastInputs= JSONField(default="", blank=True)
-        averageInputs= JSONField(default="", blank=True)
+        # averageInputs= JSONField(default="", blank=True)
 
 	def __unicode__(self):
 		return self.userName +' - '+ self.id
