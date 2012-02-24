@@ -14,7 +14,8 @@ def scale(val):
     if val <=0:
         return 0
     else:
-        return (log(val)/10)
+        return (log(val)) 
+        # return (log(val)/10) 
 
 
 def get_inputs(venue):
