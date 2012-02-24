@@ -1,16 +1,15 @@
 (function($) {
 	var 
-		home = 'http://127.0.0.1:8000/',
-		// home = 'http://ec2-107-20-17-34.compute-1.amazonaws.com',
+		//home = 'http://127.0.0.1:8000/',
+		home = 'http://ec2-107-20-17-34.compute-1.amazonaws.com',
 		accessToken = '', //only set this once in the AUTHORIZED ROUTE
-		CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
-		// CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
-		CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
-		// CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',		
+		//CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
+		CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
+		//CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
+		CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',		
 		validateAddress = 'https://foursquare.com/oauth2/authenticate?client_id=' + CLIENTID + '&response_type=token&redirect_uri=' + home,		
 		squareDimension = 120,
 		squarePixelDim = 10,
-		pixelCounter = 0,
 		checkInDuration = 120,
 		userName = 'userName',
 		checkedIn = false,
@@ -114,7 +113,7 @@
 				getLocation();
 				}			
 			);
-			console.log('lastCheckInName at top of checkIn = ' + $.lastCheckInName);
+			console.log('lastCheckInName at bottom of checkIn = ' + $.lastCheckInName);
 			$('.loading').hide();
 			window.location.replace(home + '#access_token=' + accessToken + '/activities');
 		});
@@ -123,7 +122,6 @@
     //changed this to the search url, which caused some problems
 		$('.loading').show();
 		var getVenues = "https://api.foursquare.com/v2/venues/search?ll=" + lat + "," + lon + "&access_token=" + accessToken + "&client_id=" + CLIENTID + "&client_secret=" + CLIENTSECRET;
-			
 		$.ajax({
 			url: getVenues,
 			async: false,
@@ -259,18 +257,40 @@
 		//
 		// The NEW idea is to map the weights in the neural net to the pixels
 		$('.loading').show();
-		for(var i=0; i<squarePixelDim; i++) {
-			for(var j=0; j<squarePixelDim; j++) {
-				var hue = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')',				
-					pixel = '<div class="' + pixelCounter + '"></div>';
-				$('.square').append(pixel);
-				$('.square .' + pixelCounter).css('background', hue);
-				pixelCounter++;
-			}
-			
-		}
-		$('.square div').css('height',squareDimension/squarePixelDim);
-		$('.square div').css('width',squareDimension/squarePixelDim);
+		//get http://127.0.0.1:8000/learn/getvisdata/21208820
+		$.getJSON('http://127.0.0.1:8000/learn/getvisdata/'+ userId, function(VisData){
+				var totalHappy = VisData["total"],
+					lastInputs = VisData["lastInputs"],
+					lastTotal = VisData["lastTotal"],
+					mappedVals = []
+				;
+				console.log('totalHappy = ' + totalHappy);
+				console.log('lastInputs = ' + lastInputs);
+				console.log('lastTotal = ' + lastTotal);
+				console.log('lastInputs.length = ' + lastInputs.length);
+				//adjust the speed of the squares bounce based on how happy it is
+				$('.square').css({'-webkit-animation-duration':(2/totalHappy).toString() + 's'});
+				$('.shadow').css({'-webkit-animation-duration':(2/totalHappy).toString() + 's'});
+				//I'd like to add in the range of the bounce as a parameter,
+				//but changing webkit animations is moutful so I'm gonna save it as a 
+				//'only if we have time' item :D	
+				//$('@-webkit-keyframes bounce').css({'from { top': (60).toString() + 'px'});
+				//map each value in lastInputs from 0-255 and add it to mappedVals array
+				$.each(lastInputs, function() {
+					mappedVals.push(Math.floor(Number(this)*255));
+				});
+				console.log("mappedVals = " + mappedVals);
+				for(var i=0; i<lastInputs.length; i++) {
+					var hue = 'rgb(' + mappedVals[i] + ',' + mappedVals[i+1] + ',' + mappedVals[i+2] + ')',				
+						pixel = '<div class="' + i + '"></div>';
+					$('.square').append(pixel);
+					$('.square .' + i).css('background', hue);
+				}
+				$('.square div').css({'height':squareDimension/squarePixelDim,'width':squareDimension/squarePixelDim});
+			}			
+		);
+		
+		
 		$('.loading').hide();
 	}
 	function dance() {
