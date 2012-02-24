@@ -59,5 +59,22 @@ def getVisData(request, id):
     res['lastPoints']= square.lastPoints
     # print square.lastInputs
     res['lastInputs']= square.lastInputs
-    res['net']=net.visualization 
+    res['net']=  processVis(net.visualization)
     return HttpResponse(simplejson.dumps(res))
+
+def processVis (vis):
+    lines = vis.split('\n')
+    results = []
+    for line in lines[1:]:
+        letters = line[15:]
+        connWeights = []
+        for c in letters:
+            if c.islower():
+                val = ord(c) -96 #a is 97
+            elif c.isupper():
+                val = ord(c)-64 #a is 65
+            else:
+                val = 0 # a period, or something screwed up
+            connWeights.append(val)
+        results.append(connWeights)
+    return results

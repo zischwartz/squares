@@ -20,7 +20,8 @@ def scale(val):
 
 def get_inputs(venue):
 	inputs = []
-        cat_inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0]  
+        cat_inputs = [-1, -1, -1, -1, -1, -1, -1, -1, -1]   
+        # cat_inputs = [0, 0, 0, 0, 0, 0, 0, 0, 0]  
 
 	inputs.append(venue['stats']['checkinsCount'])
 	inputs.append(venue['hereNow']['count'])
