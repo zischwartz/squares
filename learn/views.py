@@ -62,6 +62,13 @@ def getVisData(request, id):
     res['net']=  processVis(net.visualization)
     return HttpResponse(simplejson.dumps(res))
 
+
+import string
+lettermap=['.'] #because we want the . =0
+for i in range(0, 26):
+    lettermap.append(string.uppercase[i])
+    lettermap.append(string.lowercase[i])
+
 def processVis (vis):
     lines = vis.split('\n')
     results = []
@@ -69,12 +76,9 @@ def processVis (vis):
         letters = line[15:]
         connWeights = []
         for c in letters:
-            if c.islower():
-                val = ord(c) -96 #a is 97
-            elif c.isupper():
-                val = ord(c)-64 #a is 65
-            else:
-                val = 0 # a period, or something screwed up
-            connWeights.append(val)
+            if c in lettermap:
+                val = lettermap.index(c)
+                connWeights.append(val)
         results.append(connWeights)
+    print results
     return results
