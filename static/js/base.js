@@ -1,7 +1,7 @@
 (function($) {
 	var 
 		//home = 'http://127.0.0.1:8000/',
-		home = 'http://ec2-107-20-17-34.compute-1.amazonaws.com',
+		home = 'http://23.21.160.17/',
 		accessToken = '', //only set this once in the AUTHORIZED ROUTE
 		//CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
 		CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
@@ -33,6 +33,7 @@
 	$('.square').live("click", function() {
 		console.log('click');
 	});
+
 	$.fn.pause = function(duration) { //calling pause on jquery events 
 		$(this).animate({ dummy: 1 }, duration);
 		return this;

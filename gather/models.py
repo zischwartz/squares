@@ -14,22 +14,10 @@ class Square(models.Model):
         
         lastPoints= models.FloatField(default=0)
         lastInputs= JSONField(default="", blank=True)
-        averageInputs= JSONField(default="", blank=True)
+        # averageInputs= JSONField(default="", blank=True)
 
 	def __unicode__(self):
 		return self.userName +' - '+ self.id
-
-        # def lastHappyScore(self):
-        #     return self.lastHappyScore
-
-        # def totalHappyScore(self):
-        #     return self.points 
-
-        # def lastInputs(self):
-            # return true
-
-        def averageInputs(self):
-            return true
 
         #send vis stuff, based on each input, averaged, maybe weighted by how much fun it had
         # average of tipCount, and if it went up or down at the last checkin
