@@ -59,5 +59,26 @@ def getVisData(request, id):
     res['lastPoints']= square.lastPoints
     # print square.lastInputs
     res['lastInputs']= square.lastInputs
-    res['net']=net.visualization 
+    res['net']=  processVis(net.visualization)
     return HttpResponse(simplejson.dumps(res))
+
+
+import string
+lettermap=['.'] #because we want the . =0
+for i in range(0, 26):
+    lettermap.append(string.uppercase[i])
+    lettermap.append(string.lowercase[i])
+
+def processVis (vis):
+    lines = vis.split('\n')
+    results = []
+    for line in lines[1:]:
+        letters = line[15:]
+        connWeights = []
+        for c in letters:
+            if c in lettermap:
+                val = lettermap.index(c)
+                connWeights.append(val)
+        results.append(connWeights)
+    print results
+    return results
