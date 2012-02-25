@@ -12,9 +12,9 @@
         CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
         // CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',        
         validateAddress = 'https://foursquare.com/oauth2/authenticate?client_id=' + CLIENTID + '&response_type=token&redirect_uri=' + home,        
-        squareDimension = 112,
+        squareDimension = 120,
         squarePixelDim = 16,
-        checkInDuration = 112,
+        checkInDuration = 120,
         userName = 'userName',
         checkedIn = false,
         userId ='',
@@ -278,9 +278,7 @@
                     lastTotal = VisData["lastTotal"],
                     net = VisData['net'],
                     mappedVals = [],
-                    maxMappedVal,
-                    minMappedVal,
-                    rangeMapped
+                    maxMappedVal
                 ;
                 //adjust the speed of the squares bounce based on how happy it is
                 console.log('totalHappy = ' + totalHappy);
@@ -301,39 +299,40 @@
                 $.each(net, function() {
                     for(var i=0; i<this.length; i++) {
                         if(this[i] != 0) {
-                            mappedVals.push(52-(this[i]-1));
-                        } else {
-                           mappedVals.push(this[i]); 
+                            // should this be backwards because if A is stronger, the RGB value should be brighter, AKA a larger value, e.g.:
+                            /*
+                            A = 1 = ~255
+                            a = 2 = ~245
+                            B = 3 = ~235
+                            ...
+                            52 = ~10
+                            0 = 0
+
+                            it's a difference of having a light or dark square with strong, but naive connections? as the square gains more experience and
+                            more interesting (but weak) connections should those light up? or be dark? hhhmmm
+
+                            */
+                            mappedVals.push(this[i]);//darker square with brighter weak connections
+                            //mappedVals.push(52-(this[i]-1))//lighter square with darker weak connections
                         }
-                        
                     }
                 });
                 
-                //find the min and max values, excluding zero
+                
                 //find the max value in the array of mappedVals
-                // this is backwards because if A is stronger, the RGB value should be brighter, AKA a larger value, e.g.:
-                /*
-                A = 1 = ~255
-                a = 2 = ~245
-                B = 3 = ~235
-                ...
-                52 = ~10
-                0 = 0
-                */
                 maxMappedVal = Array.max(mappedVals);
-                minMappedVal = minExcludeZero(mappedVals);
-                rangeMapped = maxMappedVal - minMappedVal;
-                console.log("maxMappedVal = " +  maxMappedVal);
-                console.log("minMappedVal = " +  minMappedVal);
-                console.log("rangeMapped = " +  rangeMapped);
+                squarePixelDim = Math.floor(Math.sqrt(mappedVals.length));
+                squarePixelWidth = Math.floor(squareDimension/squarePixelDim);
+                squareDimension = squarePixelWidth*squarePixelDim;                
+                
                 //scale each value in mappedVals from 0 to the max value in the entire array
+                //and give it a bit of a random range so there arent solid/bland color blocks
                 for(var i=0; i<mappedVals.length; i++) {
-                    //console.log("value before scale = " + mappedVals[i]);
                     var ranFactor = 40,
                     ran = ranFactor*(Math.floor(Math.random()*ranFactor+1))/ranFactor - ranFactor/2
                     ;                    
-                
                     mappedVals[i] = Math.floor(((mappedVals[i]*255)/maxMappedVal)+ran);
+                    //if the added random range put the value outside of 0-255, just correct it
                     if (mappedVals[i]<0) {
                         mappedVals[i] = 0;
                     }
@@ -342,18 +341,16 @@
                     }else{
                         mappedVals[i] = mappedVals[i];
                     }
-                    //console.log("value after scale = " + mappedVals[i]);
                 }
-                
-                
-                
-                for(var i=0; i<256; i++) {
+                                
+                for(var i=0; i<(squarePixelDim*squarePixelDim); i++) {
                     var hue = 'rgb(' + mappedVals[i] + ',' + mappedVals[i+1] + ',' + mappedVals[i+2] + ')',                
                         pixel = '<div class="' + i + '"></div>';
                     $('.square').append(pixel);
                     $('.square .' + i).css('background', hue);
                 }
                 $('.square div').css({'height':squareDimension/squarePixelDim,'width':squareDimension/squarePixelDim});
+                $('.square').css({'height': squareDimension ,'width': squareDimension, 'margin-left': -squareDimension/2 });
             }            
         );
         
@@ -384,7 +381,7 @@
             $('.square').css({'margin-left': (-squareDimension/2 + x),'margin-top': (y)});
             $('.shadow').css({'margin-left': (-squareDimension + x), 'top': (300 + y)});
         }
-        danceScore += (Math.abs(gamma) + Math.abs(beta))/5000;
+        danceScore += (Math.abs(gamma) + Math.abs(beta))/1000;
         console.log(danceScore);
         previousGamma = gamma;
         previousBeta = beta;
