@@ -65,13 +65,13 @@ h3, p {
 }
 .square {
 	display:inline-block;
-	height:120px;
-	width:120px;
+	height:112px;
+	width:112px;
 	background:#000000;
 	position:absolute;
 	top:0;
 	left:50%;
-	margin-left:-60px;
+	margin-left:-56px;
 	
 }
 .square div {
