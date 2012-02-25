@@ -13,7 +13,8 @@
 
 	<div class="options">
 		<a class="activity option dance">Let&#8217;s dance!</a>
-		<a class="activity option sad">Something sad :-(</a>
+		<a class="activity option sad">Make sad</a>
+		<a class="activity option happy">Make happy</a>
 	</div>
 
 	<div class="user-speak">	

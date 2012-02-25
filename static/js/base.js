@@ -81,7 +81,14 @@
     $("a.checkin-decline").live("click", function(){
         $('.confirm').hide();
     });
-    $('a.sad').live('click', function(){logActivity(-1)});
+    $('a.sad').live('click', function(){
+        logActivity(-5);
+        console.log("sadness");
+    });
+    $('a.happy').live('click', function(){
+        logActivity(5);
+        console.log("hapiness");
+    });
     //
     $("a.target-more_options").live("click", function(){
         window.location.replace(home + '#access_token=' + accessToken + '/more_options');
@@ -233,14 +240,14 @@
     } // end areYouCheckedIn()
     //for our server    
     function sendToServer(data){
-        $('.loading').show();
+        //$('.loading').show();
         $.ajax({
             url:'/data/',
             data: $.toJSON(data),
             type: 'POST',
             dataType: 'json',
             success: function(json) {
-                $('.loading').hide();
+                //$('.loading').hide();
                 console.log('send to server success');
             }
         });
@@ -276,6 +283,13 @@
                     rangeMapped
                 ;
                 //adjust the speed of the squares bounce based on how happy it is
+                console.log('totalHappy = ' + totalHappy);
+                if(totalHappy < 1) {
+                    totalHappy = 2;
+                }else{
+                    totalHappy = totalHappy;
+                }
+                console.log('totalHappy = ' + totalHappy);
                 $('.square').css({'-webkit-animation-duration':(2/totalHappy).toString() + 's'});
                 $('.shadow').css({'-webkit-animation-duration':(2/totalHappy).toString() + 's'});
                 //I'd like to add in the range of the bounce as a parameter,
@@ -286,11 +300,11 @@
                 //map each value in lastInputs from 0-255 and add it to mappedVals array
                 $.each(net, function() {
                     for(var i=0; i<this.length; i++) {
-                        //if(this[i] != 0) {
-                          //  mappedVals.push(52-(this[i]-1));
-                        //} else {
+                        if(this[i] != 0) {
+                            mappedVals.push(52-(this[i]-1));
+                        } else {
                            mappedVals.push(this[i]); 
-                        //}
+                        }
                         
                     }
                 });
@@ -315,7 +329,19 @@
                 //scale each value in mappedVals from 0 to the max value in the entire array
                 for(var i=0; i<mappedVals.length; i++) {
                     //console.log("value before scale = " + mappedVals[i]);
-                    mappedVals[i] = Math.floor(((mappedVals[i]*255)/maxMappedVal));
+                    var ranFactor = 40,
+                    ran = ranFactor*(Math.floor(Math.random()*ranFactor+1))/ranFactor - ranFactor/2
+                    ;                    
+                
+                    mappedVals[i] = Math.floor(((mappedVals[i]*255)/maxMappedVal)+ran);
+                    if (mappedVals[i]<0) {
+                        mappedVals[i] = 0;
+                    }
+                    if (mappedVals[i]>255) {
+                        mappedVals[i] = 255;
+                    }else{
+                        mappedVals[i] = mappedVals[i];
+                    }
                     //console.log("value after scale = " + mappedVals[i]);
                 }
                 
@@ -358,7 +384,7 @@
             $('.square').css({'margin-left': (-squareDimension/2 + x),'margin-top': (y)});
             $('.shadow').css({'margin-left': (-squareDimension + x), 'top': (300 + y)});
         }
-        danceScore += (Math.abs(gamma) + Math.abs(beta))/1000;
+        danceScore += (Math.abs(gamma) + Math.abs(beta))/5000;
         console.log(danceScore);
         previousGamma = gamma;
         previousBeta = beta;
