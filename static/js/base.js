@@ -288,8 +288,8 @@
                     totalHappy = totalHappy;
                 }
                 console.log('totalHappy = ' + totalHappy);
-                $('.square').css({'-webkit-animation-duration':(2/totalHappy).toString() + 's'});
-                $('.shadow').css({'-webkit-animation-duration':(2/totalHappy).toString() + 's'});
+                $('.square').css({'-webkit-animation-duration':(4/totalHappy).toString() + 's'});
+                $('.shadow').css({'-webkit-animation-duration':(4/totalHappy).toString() + 's'});
                 //I'd like to add in the range of the bounce as a parameter,
                 //but changing webkit animations is moutful so I'm gonna save it as a 
                 //'only if we have time' item :D    
@@ -349,13 +349,11 @@
                     $('.square').append(pixel);
                     $('.square .' + i).css('background', hue);
                 }
+                $('.loading').hide();
                 $('.square div').css({'height':squareDimension/squarePixelDim,'width':squareDimension/squarePixelDim});
                 $('.square').css({'height': squareDimension ,'width': squareDimension, 'margin-left': -squareDimension/2 });
             }            
         );
-        
-        
-        $('.loading').hide();
     }
     function dance() {
         danceScore = 0;
