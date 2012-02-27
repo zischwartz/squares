@@ -413,7 +413,9 @@
             context.app.swap('');
             //render the welcome screen
             context.render('static/templates/welcome.template', {
-                welcomeText : context.items[0].welcomeText
+                welcomeText : context.items[0].welcomeText,
+                clientID : CLIENTID,
+                homeRedirect : home
             }).then(function(element){
                 $('.loading').hide();
                 $(element).appendTo(context.$element());                
