@@ -60,7 +60,7 @@ class Net(models.Model):
                 process = subprocess.Popen(["python", script, filename], stdout=subprocess.PIPE)
                 result = process.communicate()[0]
                 self.visualization = result
-                print result
+                # print result
 
                 # print 'pre redirect'
                 # old_stdout = sys.stdout
