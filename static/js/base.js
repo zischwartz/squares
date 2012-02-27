@@ -6,7 +6,7 @@
     var 
         // home = 'http://127.0.0.1:8000/',
         home = 'http://23.21.160.17/',
-        // accessToken = '', //only set this once in the AUTHORIZED ROUTE
+        accessToken = '', //only set this once in the AUTHORIZED ROUTE
         // CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
         CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
         // CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
