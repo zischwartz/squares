@@ -1,5 +1,5 @@
 <div class="welcome-overlay"></div>
 <div class="welcome">
 <p><%= welcomeText %></p>
-<p><a href="https://foursquare.com/oauth2/authenticate?client_id=GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G&response_type=token&redirect_uri=http://127.0.0.1:8000/" class="foursquare">Login with foursquare</a></p>
+<p><a href="https://foursquare.com/oauth2/authenticate?client_id=<%= clientID %>&response_type=token&redirect_uri=<%= homeRedirect %>" class="foursquare">Login with foursquare</a></p>
 </div><!--END .welcome-->
