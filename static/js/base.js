@@ -272,7 +272,7 @@
     function addPixels() {
         $('.loading').show();
         //get http://127.0.0.1:8000/learn/getvisdata/21208820
-        $.getJSON('http://127.0.0.1:8000/learn/getvisdata/'+ userId, function(VisData){
+        $.getJSON('/learn/getvisdata/'+ userId, function(VisData){
                 var totalHappy = VisData["total"],
                     lastInputs = VisData["lastInputs"],
                     lastTotal = VisData["lastTotal"],
