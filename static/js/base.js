@@ -4,13 +4,13 @@
 //zach will keep log(value) - but remove the divide by 10 - already done and pulled from git
 (function($) {
     var 
-        // home = 'http://127.0.0.1:8000/',
-        home = 'http://23.21.160.17/',
+        home = 'http://127.0.0.1:8000/',
+        // home = 'http://23.21.160.17/',
         accessToken = '', //only set this once in the AUTHORIZED ROUTE
-        // CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
-        CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
-        // CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
-        CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',        
+        CLIENTID = 'GJBRSVE1RHFMVCU0U24NLCU2RFR4QGT0UH1MORG1IYYA5Q2G',
+        // CLIENTID = 'OEV1XMR3UXQCHJ0WM2G3K4OQ0CKN3XNBYKH0B3MVN3NOYZBK',
+        CLIENTSECRET = 'KFVN4K3Y42SHR411SIVGQCSVHLZTFMY4FDU5G42RJQOG2CXZ',
+        // CLIENTSECRET = 'UXQY0GPW0LKQJJSOFSXQP0KUGOMXOMVQI101VDI1OQDCQJT0',        
         validateAddress = 'https://foursquare.com/oauth2/authenticate?client_id=' + CLIENTID + '&response_type=token&redirect_uri=' + home,        
         squareDimension = 120,
         squarePixelDim = 16,
@@ -154,6 +154,7 @@
                 //the above can't work this way, talking to the server is async, this only works when we were faking it.
                 // so instead I'm factoring in the below
                 venues=[];
+                rankedVenues=[]; //just added
                 $.each(json.response.groups[0].items, function(){ venues.push(this)});
                 // console.log('Venues: ', venues);
                 $.ajax({
@@ -171,6 +172,7 @@
                         
                         maxScore= rankedVenues.imax();
                         console.log('maxscore ', maxScore);
+                        console.log('json.response.groups[0].items ', json.response.groups[0].items)
                         if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
                         // and the old code added below
                         desiredVenueNumber = json.response.groups[0].items[maxScore.index];

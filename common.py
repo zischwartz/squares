@@ -14,7 +14,8 @@ def scale(val):
     if val <=0:
         return 0
     else:
-        return (log(val)) 
+        return (log(val)/5) 
+        # return (log(val)) 
         # return (log(val)/10) 
 
 
