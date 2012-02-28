@@ -15,6 +15,13 @@
 	margin:0;
 	padding:0;
 	text-decoration:none;
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 html, body {
 	height:100%;
@@ -142,13 +149,12 @@ h3, p {
 		color-stop(0.22, rgb(137,137,137)),
 		color-stop(0.81, rgb(153,153,153))
 	);
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
+}
+.user-speak .option:hover {
+   background:#777777;
+}
+.user-speak .option:active {
+   background:#777777;
 }
 .user-speak * {
 	color:#eeeeee;
@@ -174,6 +180,12 @@ h3, p {
 		color-stop(0.07, rgb(204,204,204)),
 		color-stop(0.54, rgb(221,221,221))
 	);
+}
+.options .option:hover {
+    background:#aaaaaa;
+}
+.options .option:active {
+    background:#bbbbbb;
 }
 .options {
 	margin-top:400px;
@@ -220,6 +232,9 @@ a.checkin-decline {
 		color-stop(0.82, rgb(171,38,38))
 	);
 }
+a.checkin-decline:hover {
+    background:#ff0000;
+}
 a.checkin-confirm {
 	background-image: linear-gradient(bottom, rgb(0,150,5) 26%, rgb(22,112,0) 82%);
 	background-image: -o-linear-gradient(bottom, rgb(0,150,5) 26%, rgb(22,112,0) 82%);
@@ -234,6 +249,9 @@ a.checkin-confirm {
 		color-stop(0.26, rgb(0,150,5)),
 		color-stop(0.82, rgb(22,112,0))
 	);
+}
+a.checkin-confirm:hover {
+    background:#44c000;
 }
 /*WELCOME ROUTE*/
 .welcome {
