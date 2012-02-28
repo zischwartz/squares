@@ -155,7 +155,7 @@
                 // so instead I'm factoring in the below
                 venues=[];
                 $.each(json.response.groups[0].items, function(){ venues.push(this)});
-                console.log('Venues: ', venues);
+                // console.log('Venues: ', venues);
                 $.ajax({
                     url: "/learn/choose/"+userId,
                     // async: false,
@@ -163,7 +163,7 @@
                     dataType: 'json',
                     data: $.toJSON(venues),
                     success: function(data){
-                        //console.log(data);
+                        console.log('learn/choose data: ', data);
                         $.each(data, function() {
                             rankedVenues.push(this[1]);
                         });
