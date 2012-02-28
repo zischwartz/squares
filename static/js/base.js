@@ -168,7 +168,9 @@
                             rankedVenues.push(this[1]);
                         });
                         console.log('rankedVenues: ', rankedVenues);
+                        
                         maxScore= rankedVenues.imax();
+                        console.log('maxscore ', maxScore);
                         if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
                         // and the old code added below
                         desiredVenueNumber = json.response.groups[0].items[maxScore.index];
