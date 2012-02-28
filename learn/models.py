@@ -84,12 +84,27 @@ class Net(models.Model):
 		filename= self.netFileName()
 		ann.create_from_file(filename)
 		processed_venues=[]
+                
+                #for tweaking scaling
+                maxScore = 0
+                minScore = 100
+
 		for v in possible_venues:
-			log.info(v)
+			# log.info(v)
 			score=ann.run(common.get_inputs(v))[0]
 			name= v['name']
 			vid= v['id']
+                        #also for tweaking scaling
+                        if score > maxScore:
+                            maxScore= score
+                        if score < minScore:
+                            minScore=score
+
 			processed_venues.append([name, score, vid])
+                print "min, max:"
+                print minScore
+                print maxScore
+                print maxScore - minScore
                 return processed_venues
 		
 from django.contrib import admin

@@ -142,11 +142,20 @@ h3, p {
 		color-stop(0.22, rgb(137,137,137)),
 		color-stop(0.81, rgb(153,153,153))
 	);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 .user-speak * {
 	color:#eeeeee;
 	cursor:pointer;
 }
+
+
 .options .option {
 	width:560px;
 	padding:40px;

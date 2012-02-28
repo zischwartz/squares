@@ -13,8 +13,9 @@ from math import log
 def scale(val):
     if val <=0:
         return 0
-    else:
-        return (log(val)/5) 
+    if val == 1:
+        val=1.2 #silly
+    return (log(val)/6) 
         # return (log(val)) 
         # return (log(val)/10) 
 
@@ -27,7 +28,8 @@ def get_inputs(venue):
 	inputs.append(venue['stats']['checkinsCount'])
 	inputs.append(venue['hereNow']['count'])
 	inputs.append(venue['stats']['tipCount'])
-        inputs.append(int(venue['verified']))
+        print 'unscaled inputs'
+        print inputs
         try:
             category = venue['categories'][0]['parents'][0]
             print venue['categories'][0]['parents'][0]
@@ -48,7 +50,9 @@ def get_inputs(venue):
         # categories
         inputs = map(scale, inputs)        
         inputs.extend(cat_inputs) # I was scaling these, but shouldn't have been
-        # print inputs
+        inputs.append(int(venue['verified'])) #this one should also not be scaled, its one or 0
+        print 'scaled inputs'
+        print inputs
         return(inputs)
 
 
