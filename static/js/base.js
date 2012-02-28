@@ -138,7 +138,7 @@
             );
             console.log('lastCheckInName at bottom of checkIn = ' + $.lastCheckInName);
             $('.loading').hide();
-            window.location.replace(home + '#access_token=' + accessToken + '/activities');
+            // window.location.replace(home + '#access_token=' + accessToken + '/activities');
         });
     }
     function findNearby(lat,lon) { //take the lat lon values and look for nearby venues in the foursquare API
@@ -167,6 +167,7 @@
                         $.each(data, function() {
                             rankedVenues.push(this[1]);
                         });
+                        console.log('rankedVenues: ', rankedVenues);
                         maxScore= rankedVenues.imax();
                         if (maxScore.index ==-1) maxScore.index=1; //on the first attempt, we have no data, so just pick the second result
                         // and the old code added below
