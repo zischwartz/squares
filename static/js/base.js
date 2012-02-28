@@ -14,7 +14,7 @@
         validateAddress = 'https://foursquare.com/oauth2/authenticate?client_id=' + CLIENTID + '&response_type=token&redirect_uri=' + home,        
         squareDimension = 120,
         squarePixelDim = 16,
-        checkInDuration = 120,
+        checkInDuration = .01,
         userName = 'userName',
         checkedIn = false,
         userId ='',
