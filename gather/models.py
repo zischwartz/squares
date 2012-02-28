@@ -42,7 +42,7 @@ class Checkin(models.Model):
 	square = models.ForeignKey(Square, null=True, blank=True)
 
 	def __unicode__(self):
-		return self.square.userName +' at '+ self.checkinData['venue']['name']
+		return self.square.userName #+' at '+ self.checkinData['venue']['name']
 
 	def get_inputs(self):
                 inputs = common.get_inputs(self.venueData)
