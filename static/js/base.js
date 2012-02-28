@@ -183,13 +183,14 @@
                             nearbyVenues.push('<a class="checkin option" title="' + this.id + '"><h2>' + this.name + '</h2>' + venueAddress + '</a>');
                             //console.log('<a class="checkin option" title="' + this.id + '"><h2>' + this.name + '</h2>' + venueAddress + '</a>'); 
                         });
+                      window.location.replace(home + '#access_token=' + accessToken + '/suggest');
                     } //end /learn/choose success
                 }) //end learn choose ajax
         
                 $('.loading').hide();
                 //add in functions from welcome HERE???    
                 //areYouCheckedIn();    
-                window.location.replace(home + '#access_token=' + accessToken + '/suggest');
+                // window.location.replace(home + '#access_token=' + accessToken + '/suggest');
         
             }
         });
