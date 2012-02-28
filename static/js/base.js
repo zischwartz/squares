@@ -82,11 +82,11 @@
         $('.confirm').hide();
     });
     $('a.sad').live('click', function(){
-        logActivity(-5);
+        logActivity(-.2);
         console.log("sadness");
     });
     $('a.happy').live('click', function(){
-        logActivity(5);
+        logActivity(.2);
         console.log("hapiness");
     });
     //
